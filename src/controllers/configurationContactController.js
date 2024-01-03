@@ -40,6 +40,8 @@ const getContactUs = async function (req, res) {
       const contactUsDetail = await contactUsModel
           .find({ isDeleted: false })
           .select({ contactUs: 1, _id: 0 })
+          .sort({ createdAt: -1 });
+
 
       if (contactUsDetail.length === 0) {
           return res.status(404).send({ status: false, msg: "No contactUs found" });

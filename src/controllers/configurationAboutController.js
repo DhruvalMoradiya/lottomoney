@@ -40,6 +40,8 @@ const getAboutUs = async function (req, res) {
       const aboutUsDetail = await aboutUsModel
           .find({ isDeleted: false })
           .select({ aboutUs: 1, _id: 0 })
+          .sort({ createdAt: -1 });
+
 
       if (aboutUsDetail.length === 0) {
           return res.status(404).send({ status: false, msg: "No aboutUs found" });

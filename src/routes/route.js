@@ -10,6 +10,10 @@ const { addContactUs,getContactUs } = require("../controllers/configurationConta
 const { addBasicInfo,getBasicInfo } = require("../controllers/appDetailsBasicInfoController")
 const { addNotification,getNotification } = require("../controllers/appDetailsNotificationController")
 const { addWalletData,getWalletData } = require("../controllers/appDetailsWalletController")
+const { addOtherData, getOtherData } = require("../controllers/appDetailsOtherController")
+const { addAppUpdateData,getAppUpdateData } = require("../controllers/appUpdateController")
+const { addPrivacyPolicy,getPrivacyPolicy } = require("../controllers/configurationPrivacyPolicyController")
+const { addTermsAndCondition,getTermsAndCondition } = require("../controllers/configurationTermsAndConditionsController")
 
 router.post("/register",createUser)
 router.post("/login", userLogin)
@@ -38,6 +42,19 @@ router.put("/resetPassword",forgotPasswordEnterOldPassword)
 
  router.post("/walletdataadd",addWalletData)
  router.get("/walletdataget",getWalletData)
+
+ router.post("/otherdataadd",addOtherData)
+ router.get("/otherdataget",getOtherData)
+
+ router.post("/appupdatedataadd",addAppUpdateData)
+ router.get("/appupdatedataget",getAppUpdateData)
+
+ router.post("/privacypolicyadd",addPrivacyPolicy)
+ router.get("/privacypolicyget",getPrivacyPolicy)
+
+ router.post("/termsandconditionadd",addTermsAndCondition)
+ router.get("/termsandconditionget",getTermsAndCondition)
+
 
  
 module.exports = router;
