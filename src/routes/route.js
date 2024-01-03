@@ -3,7 +3,8 @@ const router = express.Router();
 
 const {createUser, userLogin, forgotPassword, forgotPasswordEnterOldPassword, updateUserProfile} = require("../controllers/userController")
 const {authentication ,autherization}= require('../middleware/auth')
-// const { addCollection,getCollection,deleteCollection,getStickerAndCollectionImageCollectionWise} = require("../controllers/collectionController")
+const { addPackageList,getPackage} = require("../controllers/masterPackagesController")
+const { feesAdd,getFees } = require("../controllers/masterFeesController")
 
 router.post("/register",createUser)
 router.post("/login", userLogin)
@@ -12,8 +13,11 @@ router.put("/user/:userId/profile",authentication,autherization,updateUserProfil
 router.put("/forgotPassword",forgotPassword)
 router.put("/resetPassword",forgotPasswordEnterOldPassword)
 
-// router.post("/artistplaylistsongadd/:artistId",artistPlaylistAddSong)
-// router.get("/artistgetplaylistsong/:artistId",getArtistPlayListSong)
+ router.post("/packagenameadd",addPackageList)
+ router.get("/packagenameget",getPackage)
+
+ router.post("/feesdetailsadd/:packageId",feesAdd)
+ router.get("/feesdetailsget",getFees)
 
 // router.post("/playlistadd",addPlayList)
 // router.get("/playlistget",getPlayList)
