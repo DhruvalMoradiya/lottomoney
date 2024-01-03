@@ -5,6 +5,11 @@ const {createUser, userLogin, forgotPassword, forgotPasswordEnterOldPassword, up
 const {authentication ,autherization}= require('../middleware/auth')
 const { addPackageList,getPackage} = require("../controllers/masterPackagesController")
 const { feesAdd,getFees } = require("../controllers/masterFeesController")
+const { addAboutUs,getAboutUs } = require("../controllers/configurationAboutController")
+const { addContactUs,getContactUs } = require("../controllers/configurationContactController")
+const { addBasicInfo,getBasicInfo } = require("../controllers/appDetailsBasicInfoController")
+const { addNotification,getNotification } = require("../controllers/appDetailsNotificationController")
+const { addWalletData,getWalletData } = require("../controllers/appDetailsWalletController")
 
 router.post("/register",createUser)
 router.post("/login", userLogin)
@@ -18,20 +23,21 @@ router.put("/resetPassword",forgotPasswordEnterOldPassword)
 
  router.post("/feesdetailsadd/:packageId",feesAdd)
  router.get("/feesdetailsget",getFees)
+ 
+ router.post("/aboutusadd",addAboutUs)
+ router.get("/aboutusget",getAboutUs)
 
-// router.post("/playlistadd",addPlayList)
-// router.get("/playlistget",getPlayList)
+ router.post("/contactusadd",addContactUs)
+ router.get("/contactusget",getContactUs)
 
-// router.post("/playlistsongadd/:playListId",playlistAddSong)
-// router.get("/getplaylistsong/:playListId",getPlayListSong)
+ router.post("/basicinfoadd",addBasicInfo)
+ router.get("/basicinfoget",getBasicInfo)
 
-// router.post("/indiasbestmainplaylistadd",addIndiasBestMainPlayList)
-// router.get("/indiasbestmainplaylistget",getIndiasBestMainPlayList)
+ router.post("/notificationadd",addNotification)
+ router.get("/notificationget",getNotification)
 
-// router.post("/indiasbestplaylistadd/:indiasBestMainPlayListId",addIndiasBestPlayList)
-// router.get("/indiasbestplaylistget/:indiasBestMainPlayListId",getIndiasBestPlayList)
+ router.post("/walletdataadd",addWalletData)
+ router.get("/walletdataget",getWalletData)
 
-// router.post("/indiasbestplaylistsongadd/:indiasBestSongPlayListId",indiasBestPlaylistAddSong)
-// router.get("/indiasbestgetplaylistsong/:indiasBestSongPlayListId",getIndiasBestPlayListSong)
-
+ 
 module.exports = router;
