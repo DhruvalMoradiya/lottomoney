@@ -250,4 +250,31 @@ const updateUserProfile = async function (req, res) {
     }
   }
 
-module.exports = {createUser, userLogin, forgotPassword, forgotPasswordEnterOldPassword, updateUserProfile}
+  const getUserData = async function (req, res) {
+    try {
+        let page = req.query.page || 1;
+        let pageSize = req.query.pageSize || 10; // Default page size is 10, you can customize it
+
+        const userData = await userModel
+            .find({ isDeleted: false })
+            .select({ userName: 1, email: 1, mobile: 1, gender: 1,dateOfBirth: 1, totalCoin: 1, wonCoin: 1,bonusCoin: 1, status: 1, bankStatus: 1, _id: 0 })
+            .sort({ createdAt: -1 })
+            .skip((page - 1) * pageSize)
+            .limit(pageSize);
+
+        if (!userData || userData.length === 0) {
+            return res.status(404).send({ status: false, msg: "No userData found" });
+        }
+
+        return res.status(200).send({
+            status: true,
+            message: "userData",
+            userData,
+        });
+    } catch (err) {
+        res.status(500).send({ status: false, msg: err.message });
+    }
+};
+
+
+module.exports = {createUser, userLogin, forgotPassword, forgotPasswordEnterOldPassword, updateUserProfile,getUserData}

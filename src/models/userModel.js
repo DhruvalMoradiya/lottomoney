@@ -13,7 +13,7 @@ const userSchema = new mongoose.Schema({
 
     gender:{ type: String,trim: true,},
 
-    deviceId: { type: String,unique:true,trim: true,},
+    deviceId: { type: String,trim: true,},
 
     profileImage: { type: String},
 
@@ -25,6 +25,16 @@ const userSchema = new mongoose.Schema({
 
     fcmToken:{type:String,trim:true},
 
+    totalCoin:{type:Number,default:0,trim:true},
+
+    wonCoin:{type:Number,default:0,trim:true},
+
+    bonusCoin:{type:Number,default:0,trim:true},
+
+    status:{type:String,default:"active",trim:true},
+
+    bankStatus:{type:String,default:"active",trim:true},
+
     password: { type: String, trim: true,},
 
     deletedAt: { type: Date },
@@ -33,4 +43,4 @@ const userSchema = new mongoose.Schema({
 
 }, { timestamps: true })
 
-module.exports = mongoose.model('users', userSchema)
+module.exports = mongoose.model('lottouser', userSchema)

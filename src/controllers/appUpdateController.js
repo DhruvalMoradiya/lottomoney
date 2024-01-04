@@ -59,7 +59,7 @@ const addAppUpdateData = async function (req, res) {
 
   const getAppUpdateData = async function (req, res) {
     try {
-        const appUpdateData = await walletModel
+        const appUpdateData = await appUpdateModel
             .findOne({ isDeleted: false })
             .select({ forceUpdate:1, latestVersionName:1, latestVersionCode:1, url:1, Description:1, _id: 0 })
             .sort({ createdAt: -1 });

@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const {createUser, userLogin, forgotPassword, forgotPasswordEnterOldPassword, updateUserProfile} = require("../controllers/userController")
+const {createUser, userLogin, forgotPassword,forgotPasswordEnterOldPassword,updateUserProfile,getUserData} = require("../controllers/userController")
 const {authentication ,autherization}= require('../middleware/auth')
 const { addPackageList,getPackage} = require("../controllers/masterPackagesController")
 const { feesAdd,getFees } = require("../controllers/masterFeesController")
@@ -14,9 +14,13 @@ const { addOtherData, getOtherData } = require("../controllers/appDetailsOtherCo
 const { addAppUpdateData,getAppUpdateData } = require("../controllers/appUpdateController")
 const { addPrivacyPolicy,getPrivacyPolicy } = require("../controllers/configurationPrivacyPolicyController")
 const { addTermsAndCondition,getTermsAndCondition } = require("../controllers/configurationTermsAndConditionsController")
+const { addContestData,getContestData,contestDelete} = require("../controllers/contestController")
+const {addDummyUserData,getDummyUserData,dummyUserDelete} = require("../controllers/dummyUserController")
+const {addSendNotificationData,getSendNotificationData} = require("../controllers/sendNotificationController")
 
 router.post("/register",createUser)
 router.post("/login", userLogin)
+router.get("/userdataget",getUserData)
 
 router.put("/user/:userId/profile",authentication,autherization,updateUserProfile)
 router.put("/forgotPassword",forgotPassword)
@@ -55,6 +59,17 @@ router.put("/resetPassword",forgotPasswordEnterOldPassword)
  router.post("/termsandconditionadd",addTermsAndCondition)
  router.get("/termsandconditionget",getTermsAndCondition)
 
+ router.post("/contestdataadd",addContestData)
+ router.get("/contestdataget",getContestData)
+ router.delete("/contestdatadelete/:contestId",contestDelete)
 
+ router.post("/dummyuseradd",addDummyUserData)
+ router.get("/dummyuserget",getDummyUserData)
+ router.delete("/dummyuserdelete/:dummyUserId",dummyUserDelete)
+
+ router.post("/sendnotificationadd",addSendNotificationData)
+ router.get("/sendnotificationget",getSendNotificationData)
+
+ // ?page=1&pageSize=20
  
 module.exports = router;
