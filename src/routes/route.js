@@ -17,6 +17,10 @@ const { addTermsAndCondition,getTermsAndCondition } = require("../controllers/co
 const { addContestData,getContestData,contestDelete} = require("../controllers/contestController")
 const {addDummyUserData,getDummyUserData,dummyUserDelete} = require("../controllers/dummyUserController")
 const {addSendNotificationData,getSendNotificationData} = require("../controllers/sendNotificationController")
+const {addModeofPayment,getModeofPaymentDetail} = require("../controllers/appDetailsPaymentGatewayController")
+const {addRazorPay,getRazorPay} = require("../controllers/paymentGatewayRazorPayController")
+const {addPaytmData,getPaytmData} = require("../controllers/paymentGatewayPaytmController")
+const {addUpi,getUpi} = require("../controllers/paymentGatewayUpiController")
 
 router.post("/register",createUser)
 router.post("/login", userLogin)
@@ -46,6 +50,18 @@ router.put("/resetPassword",forgotPasswordEnterOldPassword)
 
  router.post("/walletdataadd",addWalletData)
  router.get("/walletdataget",getWalletData)
+
+ router.post("/modeofpaymentadd",addModeofPayment)
+ router.get("/modeofpaymentget",getModeofPaymentDetail)
+
+ router.post("/razorpayadd",addRazorPay)
+ router.get("/razorpayget",getRazorPay)
+
+ router.post("/paytmadd",addPaytmData)
+ router.get("/paytmget",getPaytmData)
+
+ router.post("/upiadd",addUpi)
+ router.get("/upiget",getUpi)
 
  router.post("/otherdataadd",addOtherData)
  router.get("/otherdataget",getOtherData)
