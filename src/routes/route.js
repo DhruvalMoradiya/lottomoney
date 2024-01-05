@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 
 const {createUser, userLogin, forgotPassword,forgotPasswordEnterOldPassword,updateUserProfile,getUserData} = require("../controllers/userController")
-const {authentication ,autherization}= require('../middleware/auth')
+const {createAdminUser, adminUserLogin, adminChangePassword, updateAdminProfile} = require("../controllers/adminUserController")
+const {authentication ,autherization,authenticationAdmin,autherizationAdmin}= require('../middleware/auth')
 const { addPackageList,getPackage} = require("../controllers/masterPackagesController")
 const { feesAdd,getFees } = require("../controllers/masterFeesController")
 const { addAboutUs,getAboutUs } = require("../controllers/configurationAboutController")
@@ -27,8 +28,15 @@ router.post("/login", userLogin)
 router.get("/userdataget",getUserData)
 
 router.put("/user/:userId/profile",authentication,autherization,updateUserProfile)
-router.put("/forgotPassword",forgotPassword)
-router.put("/resetPassword",forgotPasswordEnterOldPassword)
+router.put("/forgotpassword",forgotPassword)
+router.put("/changepassword",forgotPasswordEnterOldPassword)
+
+//Admin
+
+router.post("/register-admin",createAdminUser)
+router.post("/login-admin", adminUserLogin)
+router.put("/admin/:adminId/profile",authenticationAdmin,autherizationAdmin,updateAdminProfile)
+router.put("/admin/:adminId/resetpassword",authenticationAdmin,autherizationAdmin,adminChangePassword)
 
  router.post("/packagenameadd",addPackageList)
  router.get("/packagenameget",getPackage)

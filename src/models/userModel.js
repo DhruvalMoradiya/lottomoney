@@ -43,4 +43,4 @@ const userSchema = new mongoose.Schema({
 
 }, { timestamps: true })
 
-module.exports = mongoose.model('lottouser', userSchema)
+module.exports = mongoose.model('LuckyLottoUser', userSchema)

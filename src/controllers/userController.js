@@ -168,7 +168,7 @@ const forgotPasswordEnterOldPassword = async (req, res) => {
             }
 
             if (newPassword !== confirmPassword) {
-                return res.status(400).send({ success: false, message: "Your password and confirmPassword do not match" });
+                return res.status(400).send({ success: false, message: "Your newpassword and confirmPassword do not match" });
             }
 
             const hashedPassword = await bcrypt.hash(newPassword, 10);
