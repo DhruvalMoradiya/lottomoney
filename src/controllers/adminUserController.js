@@ -111,35 +111,45 @@ const adminUserLogin = async function (req, res) {
 const adminChangePassword = async (req, res) => {
     try {
         const currentPassword = req.body.currentPassword;
-        const newPassword = req.body.password;
+        const newPassword = req.body.newPassword; // Fix: Use the correct field name
         const verifyPassword = req.body.verifyPassword;
 
-        const data = await adminModel.findOne({ password: currentPassword });
+        // Check if decodedToken exists
+        if (!req.token) {
+            return res.status(401).send({ success: false, message: "Unauthorized access" });
+        }
+
+        const adminId = req.token;
+
+        const data = await adminModel.findById(adminId);
 
         if (data) {
-            if (!isValid(newPassword)) {
-                return res.status(400).send({ success: false, message: "Enter a valid password" });
+            const isPasswordMatch = await bcrypt.compare(currentPassword, data.password);
+
+            if (!isPasswordMatch) {
+                return res.status(400).send({ success: false, message: "Current password is not correct" });
             }
 
             if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,15}$/.test(newPassword)) {
-                return res.status(400).send({ success: false, message: "Password should be 8 - 15 characters and include special characters or numbers" });
+                return res.status(400).send({ success: false, message: "Password should be 8-15 characters and include special characters or numbers" });
             }
 
             if (newPassword !== verifyPassword) {
-                return res.status(400).send({ success: false, message: "Your newpassword and verifyPassword do not match" });
+                return res.status(400).send({ success: false, message: "Your new password and verify password do not match" });
             }
 
             const hashedPassword = await bcrypt.hash(newPassword, 10);
-            await adminModel.findOneAndUpdate({ password: currentPassword }, { $set: { password: hashedPassword } }, { new: true });
+            await adminModel.findByIdAndUpdate(adminId, { $set: { password: hashedPassword } });
 
             res.status(200).send({ success: true, message: "Your password has been updated" });
         } else {
-            res.status(404).send({ success: false, message: "current password is not correct" });
+            res.status(404).send({ success: false, message: "Admin not found" });
         }
     } catch (error) {
         res.status(500).send({ success: false, message: error.message });
     }
 };
+
 
 const updateAdminProfile = async function (req, res) {
     try {
