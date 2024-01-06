@@ -38,7 +38,7 @@ router.post("/login-admin", adminUserLogin)
 router.put("/admin/:adminId/profile",authenticationAdmin,autherizationAdmin,updateAdminProfile)
 router.put("/admin/:adminId/resetpassword",authenticationAdmin,autherizationAdmin,adminChangePassword)
 
- router.post("/packagenameadd",addPackageList)
+ router.post("/packagenameadd",authenticationAdmin,addPackageList)
  router.get("/packagenameget",getPackage)
 
  router.post("/feesdetailsadd/:packageId",feesAdd)
