@@ -38,7 +38,7 @@ const addContactUs = async function (req, res) {
 const getContactUs = async function (req, res) {
   try {
       const contactUsDetail = await contactUsModel
-          .find({ isDeleted: false })
+          .findOne({ isDeleted: false })
           .select({ contactUs: 1, _id: 0 })
           .sort({ createdAt: -1 });
 
