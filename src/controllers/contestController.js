@@ -52,7 +52,7 @@ const getContestData = async function (req, res) {
 
         const contestData = await contestModel
             .find({ isDeleted: false })
-            .select({ startDate: 1, endDate: 1, participants: 1, status: 1, _id: 0 })
+            .select({ startDate: 1, endDate: 1, participants: 1, status: 1, _id: 1 })
             .sort({ createdAt: -1 })
             .skip((page - 1) * pageSize)
             .limit(pageSize);
