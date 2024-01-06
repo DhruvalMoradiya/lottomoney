@@ -57,7 +57,7 @@ const getDummyUserData = async function (req, res) {
 
         const dummyUserData = await dummyUserModel
             .find({ isDeleted: false })
-            .select({ firstName: 1, lastName: 1, userName: 1,_id: 0 })
+            .select({ firstName: 1, lastName: 1, userName: 1,_id: 1 })
             .sort({ createdAt: -1 })
             .skip((page - 1) * pageSize)
             .limit(pageSize);
