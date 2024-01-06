@@ -61,9 +61,15 @@ const feesAdd = async function (req, res) {
 
   const getFees = async function (req, res) {
     try {
+
+      let page = req.query.page || 1;
+      let pageSize = req.query.pageSize || 10;
+
         const fees = await feesModel
             .find({ isDeleted: false })
-            .select({ price: 1, noOfWinner: 1, noOfTicket: 1, packageId: 1, _id: 0 });
+            .select({ price: 1, noOfWinner: 1, noOfTicket: 1, packageId: 1, _id: 0 })
+            .skip((page - 1) * pageSize)
+            .limit(pageSize);
 
         if (fees.length === 0) {
             return res.status(404).send({ status: false, msg: "No data found" });
