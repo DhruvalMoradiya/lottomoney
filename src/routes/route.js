@@ -39,60 +39,60 @@ router.put("/admin/:adminId/profile",authenticationAdmin,autherizationAdmin,upda
 router.put("/admin/:adminId/resetpassword",authenticationAdmin,autherizationAdmin,adminChangePassword)
 
  router.post("/packagenameadd",authenticationAdmin,addPackageList)
- router.get("/packagenameget",getPackage)
+ router.get("/packagenameget",authenticationAdmin,getPackage)
 
- router.post("/feesdetailsadd/:packageId",feesAdd)
- router.get("/feesdetailsget",getFees)
+ router.post("/feesdetailsadd/:packageId",authenticationAdmin,feesAdd)
+ router.get("/feesdetailsget",authenticationAdmin,getFees)
  
- router.post("/aboutusadd",addAboutUs)
- router.get("/aboutusget",getAboutUs)
+ router.post("/aboutusadd",authenticationAdmin,addAboutUs)
+ router.get("/aboutusget",authenticationAdmin,getAboutUs)
 
- router.post("/contactusadd",addContactUs)
- router.get("/contactusget",getContactUs)
+ router.post("/contactusadd",authenticationAdmin,addContactUs)
+ router.get("/contactusget",authenticationAdmin,getContactUs)
 
- router.post("/basicinfoadd",addBasicInfo)
- router.get("/basicinfoget",getBasicInfo)
+ router.post("/basicinfoadd",authenticationAdmin,addBasicInfo)
+ router.get("/basicinfoget",authenticationAdmin,getBasicInfo)
 
- router.post("/notificationadd",addNotification)
- router.get("/notificationget",getNotification)
+ router.post("/notificationadd",authenticationAdmin,addNotification)
+ router.get("/notificationget",authenticationAdmin,getNotification)
 
- router.post("/walletdataadd",addWalletData)
- router.get("/walletdataget",getWalletData)
+ router.post("/walletdataadd",authenticationAdmin,addWalletData)
+ router.get("/walletdataget",authenticationAdmin,getWalletData)
 
- router.post("/modeofpaymentadd",addModeofPayment)
- router.get("/modeofpaymentget",getModeofPaymentDetail)
+ router.post("/modeofpaymentadd",authenticationAdmin,addModeofPayment)
+ router.get("/modeofpaymentget",authenticationAdmin,getModeofPaymentDetail)
 
- router.post("/razorpayadd",addRazorPay)
- router.get("/razorpayget",getRazorPay)
+ router.post("/razorpayadd",authenticationAdmin,addRazorPay)
+ router.get("/razorpayget",authenticationAdmin,getRazorPay)
 
- router.post("/paytmadd",addPaytmData)
- router.get("/paytmget",getPaytmData)
+ router.post("/paytmadd",authenticationAdmin,addPaytmData)
+ router.get("/paytmget",authenticationAdmin,getPaytmData)
 
- router.post("/upiadd",addUpi)
- router.get("/upiget",getUpi)
+ router.post("/upiadd",authenticationAdmin,addUpi)
+ router.get("/upiget",authenticationAdmin,getUpi)
 
- router.post("/otherdataadd",addOtherData)
- router.get("/otherdataget",getOtherData)
+ router.post("/otherdataadd",authenticationAdmin,addOtherData)
+ router.get("/otherdataget",authenticationAdmin,getOtherData)
 
- router.post("/appupdatedataadd",addAppUpdateData)
- router.get("/appupdatedataget",getAppUpdateData)
+ router.post("/appupdatedataadd",authenticationAdmin,addAppUpdateData)
+ router.get("/appupdatedataget",authenticationAdmin,getAppUpdateData)
 
- router.post("/privacypolicyadd",addPrivacyPolicy)
- router.get("/privacypolicyget",getPrivacyPolicy)
+ router.post("/privacypolicyadd",authenticationAdmin,addPrivacyPolicy)
+ router.get("/privacypolicyget",authenticationAdmin,getPrivacyPolicy)
 
- router.post("/termsandconditionadd",addTermsAndCondition)
- router.get("/termsandconditionget",getTermsAndCondition)
+ router.post("/termsandconditionadd",authenticationAdmin,addTermsAndCondition)
+ router.get("/termsandconditionget",authenticationAdmin,getTermsAndCondition)
 
- router.post("/contestdataadd",addContestData)
+ router.post("/contestdataadd",authenticationAdmin,addContestData)
  router.get("/contestdataget",getContestData)
- router.delete("/contestdatadelete/:contestId",contestDelete)
+ router.delete("/contestdatadelete/:contestId",authenticationAdmin,contestDelete)
 
- router.post("/dummyuseradd",addDummyUserData)
- router.get("/dummyuserget",getDummyUserData)
- router.delete("/dummyuserdelete/:dummyUserId",dummyUserDelete)
+ router.post("/dummyuseradd",authenticationAdmin,addDummyUserData)
+ router.get("/dummyuserget",authenticationAdmin,getDummyUserData)
+ router.delete("/dummyuserdelete/:dummyUserId",authenticationAdmin,dummyUserDelete)
 
- router.post("/sendnotificationadd",addSendNotificationData)
- router.get("/sendnotificationget",getSendNotificationData)
+ router.post("/sendnotificationadd",authenticationAdmin,addSendNotificationData)
+ router.get("/sendnotificationget",authenticationAdmin,getSendNotificationData)
 
  // ?page=1&pageSize=20
  
