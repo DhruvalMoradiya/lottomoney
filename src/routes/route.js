@@ -25,7 +25,7 @@ const {addUpi,getUpi} = require("../controllers/paymentGatewayUpiController")
 
 router.post("/register",createUser)
 router.post("/login", userLogin)
-router.get("/userdataget",getUserData)
+router.get("/userdataget",authenticationAdmin,getUserData)
 
 router.put("/user/:userId/profile",authentication,autherization,updateUserProfile)
 router.put("/forgotpassword",forgotPassword)
