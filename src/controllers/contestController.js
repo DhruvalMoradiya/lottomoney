@@ -101,7 +101,7 @@ const searchContest = async function (req, res) {
                 startDate: 1,
                 endDate: 1,
                 participants: 1,
-                status: 1,
+                status: { $ifNull: ["$status", "active"] }, // If status is null or not present, set it to "active"
                 _id: 1
             })
             .skip((page - 1) * pageSize)
