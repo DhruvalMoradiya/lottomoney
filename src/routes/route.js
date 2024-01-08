@@ -4,8 +4,8 @@ const router = express.Router();
 const {createUser, userLogin, forgotPassword,forgotPasswordEnterOldPassword,updateUserProfile,getUserData} = require("../controllers/userController")
 const {createAdminUser, adminUserLogin, adminChangePassword, updateAdminProfile} = require("../controllers/adminUserController")
 const {authentication ,autherization,authenticationAdmin,autherizationAdmin}= require('../middleware/auth')
-const { addPackageList,getPackage} = require("../controllers/masterPackagesController")
-const { feesAdd,getFees } = require("../controllers/masterFeesController")
+const { addPackageList,getPackage,packageDelete,updatePackage,searchPackage} = require("../controllers/masterPackagesController")
+const { feesAdd,getFees,updateFees,searchFeesPacakageNamewise,feesDelete } = require("../controllers/masterFeesController")
 const { addAboutUs,getAboutUs } = require("../controllers/configurationAboutController")
 const { addContactUs,getContactUs } = require("../controllers/configurationContactController")
 const { addBasicInfo,getBasicInfo } = require("../controllers/appDetailsBasicInfoController")
@@ -40,9 +40,15 @@ router.put("/admin/:adminId/resetpassword",authenticationAdmin,autherizationAdmi
 
  router.post("/packagenameadd",authenticationAdmin,addPackageList)
  router.get("/packagenameget",authenticationAdmin,getPackage)
+ router.get("/searchpackage/:key",authenticationAdmin,searchPackage)
+ router.delete("/package/:packageId",authenticationAdmin,packageDelete)
+ router.put("/package/:packageId",authenticationAdmin,updatePackage)
 
  router.post("/feesdetailsadd/:packageId",authenticationAdmin,feesAdd)
  router.get("/feesdetailsget",authenticationAdmin,getFees)
+ router.get("/searchfees/:key",authenticationAdmin,searchFeesPacakageNamewise)
+ router.delete("/fees/:feeId",authenticationAdmin,feesDelete)
+ router.put("/fees/:feeId",authenticationAdmin,updateFees)
  
  router.post("/aboutusadd",authenticationAdmin,addAboutUs)
  router.get("/aboutusget",authenticationAdmin,getAboutUs)
