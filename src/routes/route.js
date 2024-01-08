@@ -16,7 +16,7 @@ const { addAppUpdateData,getAppUpdateData } = require("../controllers/appUpdateC
 const { addPrivacyPolicy,getPrivacyPolicy } = require("../controllers/configurationPrivacyPolicyController")
 const { addTermsAndCondition,getTermsAndCondition } = require("../controllers/configurationTermsAndConditionsController")
 const { addContestData,getContestData,searchContest,updateContest,contestDelete} = require("../controllers/contestController")
-const {addDummyUserData,getDummyUserData,dummyUserDelete} = require("../controllers/dummyUserController")
+const {addDummyUserData,getDummyUserData,searchDummyUser,updateDummyUser,dummyUserDelete} = require("../controllers/dummyUserController")
 const {addSendNotificationData,getSendNotificationData} = require("../controllers/sendNotificationController")
 const {addModeofPayment,getModeofPaymentDetail} = require("../controllers/appDetailsPaymentGatewayController")
 const {addRazorPay,getRazorPay} = require("../controllers/paymentGatewayRazorPayController")
@@ -92,12 +92,16 @@ router.put("/admin/:adminId/resetpassword",authenticationAdmin,autherizationAdmi
  router.post("/contestdataadd",authenticationAdmin,addContestData)
  router.get("/contestdataget",getContestData)
  router.get("/searchcontest/:key",authenticationAdmin,searchContest)
- router.delete("/contestdatadelete/:contestId",authenticationAdmin,contestDelete)
  router.put("/contestupdate/:contestId",authenticationAdmin,updateContest)
+ router.delete("/contestdatadelete/:contestId",authenticationAdmin,contestDelete)
+
 
  router.post("/dummyuseradd",authenticationAdmin,addDummyUserData)
  router.get("/dummyuserget",authenticationAdmin,getDummyUserData)
- router.delete("/dummyuserdelete/:dummyUserId",authenticationAdmin,dummyUserDelete)
+ router.get("/searchdummyuser/:key",authenticationAdmin,searchDummyUser)
+ router.put("/dummyuserupdate/:userId",authenticationAdmin,updateDummyUser)
+ router.delete("/dummyuserdelete/:userId",authenticationAdmin,dummyUserDelete)
+
 
  router.post("/sendnotificationadd",authenticationAdmin,addSendNotificationData)
  router.get("/sendnotificationget",authenticationAdmin,getSendNotificationData)

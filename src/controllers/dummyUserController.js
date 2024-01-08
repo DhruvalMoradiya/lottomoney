@@ -77,18 +77,88 @@ const getDummyUserData = async function (req, res) {
 };
 
 
+const searchDummyUser = async function (req, res) {
+    try {
+        let page = req.query.page || 1;
+        let pageSize = req.query.pageSize || 10;
+
+        const key = req.params.key;
+
+        const query = {
+            $or: [
+                { firstName: { "$regex": key, "$options": "i" } },
+                { lastName: { "$regex": key, "$options": "i" } },
+                { userName: { "$regex": key, "$options": "i" } }
+               
+            ]
+        };
+
+        const recordData = await dummyUserModel.find(query)
+            .select({
+                firstName: 1,
+                lastName: 1,
+                userName: 1,
+                _id: 1
+            })
+            .skip((page - 1) * pageSize)
+            .limit(pageSize);
+
+        if (recordData.length > 0) {
+            res.status(200).send({ success: true, msg: "Contest Record details", data: recordData });
+        } else {
+            res.status(404).send({ success: false, msg: "Record not found" });
+        }
+    } catch (error) {
+        res.status(400).send({ success: false, msg: error.message });
+    }
+};
+
+
+const updateDummyUser = async function (req, res) {
+    try {
+      let body = req.body
+      let userId = req.params.userId
+      
+     // if (!isValidBody(body)) return res.status(400).send({ status: false, message: "Body is empty to update " })
+       if (!isValidBody(body) && !req.files) return res.status(400).send({ status: false, message: "Body is empty to update " })
+  
+      let {firstName,lastName,userName} = body
+  
+      if ("firstName" in body) {
+        if (!isValid(firstName)) return res.status(400).send({ status: false, message: "firstName required" })
+      }
+      if ("lastName" in body) {
+        if (!isValid(lastName)) return res.status(400).send({ status: false, message: "lastName required" })
+      }
+      if ("userName" in body) {
+        if (!isValid(userName)) return res.status(400).send({ status: false, message: "userName required" })
+      }
+  
+      let result = {firstName,lastName,userName}   
+  
+      let update = await dummyUserModel.findOneAndUpdate({ _id:userId }, result, { new: true })
+  
+      return res.status(200).send({ status: true, message: " contest  Updated successfully", data: update })
+  
+    } catch (err) {
+      console.log(err)
+      return res.status(500).send({ status: false, message: "server side errors", error: err.message })
+    }
+  }
+
+
 const dummyUserDelete = async function (req, res) {
     try {
-        let dummyUserId = req.params.dummyUserId;
+        let userId = req.params.userId;
 
-        if (!ObjectId.isValid(dummyUserId)) {
-            return res.status(400).send({ status: false, message: "DummyUser ID is invalid" });
+        if (!ObjectId.isValid(userId)) {
+            return res.status(400).send({ status: false, message: "user ID is invalid" });
         }
 
-        let deletedDummyUser = await dummyUserModel.findOneAndDelete({ _id:dummyUserId, isDeleted: false });
+        let deletedDummyUser = await dummyUserModel.findOneAndDelete({ _id:userId, isDeleted: false });
 
         if (!deletedDummyUser) {
-            return res.status(404).send({ status: false, message: "Contest does not exist" });
+            return res.status(404).send({ status: false, message: "DummyUser does not exist" });
         }
 
         return res.status(200).send({ status: true, message: "DummyUser deleted successfully" });
@@ -98,4 +168,4 @@ const dummyUserDelete = async function (req, res) {
     }
 };
 
-  module.exports = {addDummyUserData,getDummyUserData,dummyUserDelete}
+  module.exports = {addDummyUserData,getDummyUserData,searchDummyUser,updateDummyUser,dummyUserDelete}
