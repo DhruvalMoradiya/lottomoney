@@ -48,7 +48,7 @@ const addContestData = async function (req, res) {
 const getContestData = async function (req, res) {
     try {
         let page = req.query.page || 1;
-        let pageSize = req.query.pageSize || 10; // Default page size is 10, you can customize it
+        let pageSize = req.query.pageSize || 10;
 
         const contestData = await contestModel
             .find({ isDeleted: false })
@@ -57,14 +57,23 @@ const getContestData = async function (req, res) {
             .skip((page - 1) * pageSize)
             .limit(pageSize);
 
-        if (!contestData || contestData.length === 0) {
+        // Check each document for the presence of the status field and assign a default value if not present
+        const modifiedContestData = contestData.map((contest) => ({
+            startDate: contest.startDate,
+            endDate: contest.endDate,
+            participants: contest.participants,
+            status: contest.status || "active", // Assign "active" if status is not present
+            _id: contest._id,
+        }));
+
+        if (!modifiedContestData || modifiedContestData.length === 0) {
             return res.status(404).send({ status: false, msg: "No contestData found" });
         }
 
         return res.status(200).send({
             status: true,
             message: "contestData",
-            contestData,
+            contestData: modifiedContestData,
         });
     } catch (err) {
         res.status(500).send({ status: false, msg: err.message });
