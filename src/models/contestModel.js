@@ -7,9 +7,9 @@ const contestSchema = new mongoose.Schema({
 
     endDate:{ type: String,trim: true,},
 
-    participants:{ type: Number,default:0},
+    participants:{type: String,default:0},
 
-    status:{type: String,trim: true,},
+    status:{type: String,trim: true,default:"active"},
 
     deletedAt: { type: Date },   
     

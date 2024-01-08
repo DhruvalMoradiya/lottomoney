@@ -72,6 +72,8 @@ const getPackage = async function (req, res) {
 
 const searchPackage = async function (req, res) {
     try {
+        let page = req.query.page || 1;
+        let pageSize = req.query.pageSize || 10;
         const searchKeyword = req.params.key;
         const keywordRegex = new RegExp(searchKeyword, 'i');
 
@@ -82,7 +84,8 @@ const searchPackage = async function (req, res) {
         }).select({
             packageName: 1,
             _id: 1
-        });
+        }).skip((page - 1) * pageSize)
+        .limit(pageSize)
 
         if (recordData.length > 0) {
             const filteredData = recordData.map(package => ({
