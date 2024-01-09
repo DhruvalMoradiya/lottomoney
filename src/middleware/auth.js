@@ -6,29 +6,27 @@ const adminModel = require("../models/adminUserModel")
 
 
 ////////////////////////////*Authentication*//////////////////////////////////////////////////////////////////
-const authentication = function (req, res, next) {
+const authentication = (req, res, next) => {
     try {
-        let token=req.headers[`Authorization`];
-        if(!token) token=req.headers[`authorization`];
-        if (!token) {
-            return res.status(401).send({ status: false, message: "Authentication token is required in header" })
+      let token = req.headers['authorization'];
+  
+      if (!token) {
+        return res.status(401).send({ status: false, message: "Authentication token is required in header" })
+      }
+  
+      jwt.verify(token, "SECRET-OF-LOTTO", function (err, decoded) {
+        if (err) {
+          return res.status(403).send({ status: false, message: "Invalid authentication token in header" })
+        } else {
+          req.token = decoded; // Attach the entire decoded token
+          next();
         }
-
-        jwt.verify(token, "SECRET-OF-LOTTO", function (err, decoded) {
-            if (err) {
-                return res.status(403).send({ status: false, message: "Invalid authentication token in header" })
-            }
-            else {
-                req.token = decoded.userId;
-                // console.log("Authentication successfull ✅")
-                next();
-            }
-        })
-
+      });
+  
     } catch (err) {
-        res.status(500).send({ status: false, message: err.message })
+      res.status(500).send({ status: false, message: err.message })
     }
-}
+  }
 const autherization = async function (req, res, next) {
     try {
         let userId = req.params.userId;

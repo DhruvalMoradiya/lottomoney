@@ -99,15 +99,15 @@ const userLogin = async function (req, res) {
 
     const token = jwt.sign(
       {
-        userId: logIn._id.toString(),
+        userId: user._id.toString(),
       },
-      "SECRET",
+      "SECRET-OF-LOTTO",
       {
         // expiresIn: "60min"
       }
     );
 
-    const { _id } = logIn;
+    const { _id } = user;
 
     res.setHeader("x-api-key", token);
     res.status(200).send({
@@ -274,6 +274,43 @@ const updateUserProfile = async function (req, res) {
     } catch (err) {
         res.status(500).send({ status: false, msg: err.message });
     }
+};
+
+const searchContest = async function (req, res) {
+  try {
+      let page = req.query.page || 1;
+      let pageSize = req.query.pageSize || 10;
+
+      const key = req.params.key;
+
+      const query = {
+          $or: [
+              { status: { "$regex": key, "$options": "i" } },
+              { startDate: { "$regex": key, "$options": "i" } },
+              { endDate: { "$regex": key, "$options": "i" } },
+              { participants: { "$regex": key, "$options": "i" } }
+          ]
+      };
+
+      const recordData = await contestModel.find(query)
+          .select({
+              startDate: 1,
+              endDate: 1,
+              participants: 1,
+              status: { $ifNull: ["$status", "active"] }, // If status is null or not present, set it to "active"
+              _id: 1
+          })
+          .skip((page - 1) * pageSize)
+          .limit(pageSize);
+
+      if (recordData.length > 0) {
+          res.status(200).send({ success: true, msg: "Contest Record details", data: recordData });
+      } else {
+          res.status(404).send({ success: false, msg: "Record not found" });
+      }
+  } catch (error) {
+      res.status(400).send({ success: false, msg: error.message });
+  }
 };
 
 

@@ -25,15 +25,15 @@ const userSchema = new mongoose.Schema({
 
     fcmToken:{type:String,trim:true},
 
-    totalCoin:{type:Number,default:0,trim:true},
+    totalCoin:{type:String,default:0,trim:true},
 
-    wonCoin:{type:Number,default:0,trim:true},
+    wonCoin:{type:String,default:0,trim:true},
 
-    bonusCoin:{type:Number,default:0,trim:true},
+    bonusCoin:{type:String,default:0,trim:true},
 
-    status:{type:String,default:"active",trim:true},
+    status:{type:String,trim:true},
 
-    bankStatus:{type:String,default:"active",trim:true},
+    bankStatus:{type:String,trim:true},
 
     password: { type: String, trim: true,},
 

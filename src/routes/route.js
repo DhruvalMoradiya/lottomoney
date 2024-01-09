@@ -22,6 +22,7 @@ const {addModeofPayment,getModeofPaymentDetail} = require("../controllers/appDet
 const {addRazorPay,getRazorPay} = require("../controllers/paymentGatewayRazorPayController")
 const {addPaytmData,getPaytmData} = require("../controllers/paymentGatewayPaytmController")
 const {addUpi,getUpi} = require("../controllers/paymentGatewayUpiController")
+const {addWithdrawRequestData,getWithdrawRequestData,searchWithdrawRequest} = require("../controllers/withdrawRequestController")
 
 router.post("/register",createUser)
 router.post("/login", userLogin)
@@ -101,6 +102,10 @@ router.put("/admin/:adminId/resetpassword",authenticationAdmin,autherizationAdmi
  router.get("/searchdummyuser/:key",authenticationAdmin,searchDummyUser)
  router.put("/dummyuserupdate/:userId",authenticationAdmin,updateDummyUser)
  router.delete("/dummyuserdelete/:userId",authenticationAdmin,dummyUserDelete)
+
+ router.post("/sendwithdrawrequest",authentication,addWithdrawRequestData)
+ router.get("/withdrawrequest",authenticationAdmin,getWithdrawRequestData)
+ router.get("/searchwithdrawrequest/:key",authenticationAdmin,searchWithdrawRequest)
 
 
  router.post("/sendnotificationadd",authenticationAdmin,addSendNotificationData)
