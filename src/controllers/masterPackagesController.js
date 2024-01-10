@@ -37,37 +37,43 @@ const addPackageList = async function (req, res) {
 
 
 const getPackage = async function (req, res) {
-  try {
-      let page = req.query.page || 1;
-      let pageSize = req.query.pageSize || 10;
-      const packageDetail = await packagesModel
-          .find({ isDeleted: false })
-          .select({
-              packageName: 1,
-              _id: 1
-          })
-          .skip((page - 1) * pageSize)
-          .limit(pageSize)
-          .exec();
+    try {
+        let page = req.query.page || 1;
+        let pageSize = req.query.pageSize || 10;
+        let sortOrder = req.query.sortOrder || 'asc';
 
-      if (packageDetail.length === 0) {
-          return res.status(404).send({ status: false, msg: "No package found" });
-      }
+        // Validate sortOrder to ensure it's either 'asc' or 'desc'
+        sortOrder = sortOrder.toLowerCase() === 'desc' ? -1 : 1;
 
-      // Map the array of packageDetail to include both packageName and packageId
-      const packageData = packageDetail.map(package => ({
-          packageName: package.packageName,
-          packageId: package._id
-      }));
+        const packageDetail = await packagesModel
+            .find({ isDeleted: false })
+            .select({
+                packageName: 1,
+                _id: 1
+            })
+            .sort({ packageName: sortOrder })  // Sort by packageName
+            .skip((page - 1) * pageSize)
+            .limit(pageSize)
+            .exec();
 
-      return res.status(200).json({
-          status: true,
-          message: "packageName",
-          package: packageData,
-      });
-  } catch (err) {
-      res.status(500).json({ status: false, msg: err.message });
-  }
+        if (packageDetail.length === 0) {
+            return res.status(404).send({ status: false, msg: "No package found" });
+        }
+
+        // Map the array of packageDetail to include both packageName and packageId
+        const packageData = packageDetail.map(package => ({
+            packageName: package.packageName,
+            packageId: package._id
+        }));
+
+        return res.status(200).json({
+            status: true,
+            message: "packageName",
+            package: packageData,
+        });
+    } catch (err) {
+        res.status(500).json({ status: false, msg: err.message });
+    }
 };
 
 const searchPackage = async function (req, res) {

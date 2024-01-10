@@ -53,12 +53,17 @@ const addDummyUserData = async function (req, res) {
 const getDummyUserData = async function (req, res) {
     try {
         let page = req.query.page || 1;
-        let pageSize = req.query.pageSize || 10; // Default page size is 10, you can customize it
+        let pageSize = req.query.pageSize || 10;
+        let sortFields = req.query.sortFields || ['firstName']; // Default sort field is 'firstName'
+        let sortOrder = req.query.sortOrder || 'asc';
+
+        if (!Array.isArray(sortFields)) {
+            sortFields = [sortFields];
+        }
 
         const dummyUserData = await dummyUserModel
             .find({ isDeleted: false })
-            .select({ firstName: 1, lastName: 1, userName: 1,_id: 1 })
-            .sort({ createdAt: -1 })
+            .select({ firstName: 1, lastName: 1, userName: 1, _id: 1 })
             .skip((page - 1) * pageSize)
             .limit(pageSize);
 
@@ -66,16 +71,29 @@ const getDummyUserData = async function (req, res) {
             return res.status(404).send({ status: false, msg: "No DummyUser Data found" });
         }
 
+        const sortedDummyUserData = dummyUserData.sort((a, b) => {
+            for (const field of sortFields) {
+                const valueA = a[field];
+                const valueB = b[field];
+
+                // Default sorting for non-numeric fields
+                const compareResult = sortOrder === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
+                if (compareResult !== 0) {
+                    return compareResult;
+                }
+            }
+            return 0;
+        });
+
         return res.status(200).send({
             status: true,
             message: "DummyUser",
-            dummyUserData,
+            dummyUserData: sortedDummyUserData,
         });
     } catch (err) {
         res.status(500).send({ status: false, msg: err.message });
     }
 };
-
 
 const searchDummyUser = async function (req, res) {
     try {

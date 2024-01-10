@@ -41,12 +41,14 @@ router.put("/admin/:adminId/resetpassword",authenticationAdmin,autherizationAdmi
 
  router.post("/packagenameadd",authenticationAdmin,addPackageList)
  router.get("/packagenameget",authenticationAdmin,getPackage)
+  //?page=1&pageSize=10&sortOrder=desc
  router.get("/searchpackage/:key",authenticationAdmin,searchPackage)
  router.delete("/package/:packageId",authenticationAdmin,packageDelete)
  router.put("/package/:packageId",authenticationAdmin,updatePackage)
 
  router.post("/feesdetailsadd/:packageId",authenticationAdmin,feesAdd)
  router.get("/feesdetailsget",authenticationAdmin,getFees)
+  //?page=1&pageSize=10&sortField=noOfTicket&sortOrder=asc
  router.get("/searchfees/:key",authenticationAdmin,searchFeesPacakageNamewise)
  router.delete("/fees/:feeId",authenticationAdmin,feesDelete)
  router.put("/fees/:feeId",authenticationAdmin,updateFees)

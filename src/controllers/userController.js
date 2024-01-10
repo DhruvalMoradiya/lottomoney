@@ -253,12 +253,19 @@ const updateUserProfile = async function (req, res) {
   const getUserData = async function (req, res) {
     try {
         let page = req.query.page || 1;
-        let pageSize = req.query.pageSize || 10; // Default page size is 10, you can customize it
+        let pageSize = req.query.pageSize || 10;
+        let sortFields = req.query.sortFields || ['userName']; // Default sort fields is 'userName'
+        let sortOrder = req.query.sortOrder || 'asc';
+
+        if (!Array.isArray(sortFields)) {
+            sortFields = [sortFields];
+        }
+
+        const numericFields = ['totalCoin', 'wonCoin', 'bonusCoin']; // Add other numeric fields as needed
 
         const userData = await userModel
             .find({ isDeleted: false })
-            .select({ userName: 1, email: 1, mobile: 1, gender: 1,dateOfBirth: 1, totalCoin: 1, wonCoin: 1,bonusCoin: 1, status: 1, bankStatus: 1, _id: 0 })
-            .sort({ createdAt: -1 })
+            .select({ userName: 1, email: 1, mobile: 1, gender: 1, dateOfBirth: 1, totalCoin: 1, wonCoin: 1, bonusCoin: 1, status: 1, bankStatus: 1, _id: 0 })
             .skip((page - 1) * pageSize)
             .limit(pageSize);
 
@@ -266,10 +273,33 @@ const updateUserProfile = async function (req, res) {
             return res.status(404).send({ status: false, msg: "No userData found" });
         }
 
+        const sortedUserData = userData.sort((a, b) => {
+            for (const field of sortFields) {
+                const valueA = a[field];
+                const valueB = b[field];
+
+                if (numericFields.includes(field)) {
+                    // Convert to numeric values for numeric fields
+                    const numericValueA = parseInt(valueA) || 0;
+                    const numericValueB = parseInt(valueB) || 0;
+                    if (numericValueA !== numericValueB) {
+                        return sortOrder === 'asc' ? numericValueA - numericValueB : numericValueB - numericValueA;
+                    }
+                } else {
+                    // Default sorting for other fields
+                    const compareResult = sortOrder === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
+                    if (compareResult !== 0) {
+                        return compareResult;
+                    }
+                }
+            }
+            return 0;
+        });
+
         return res.status(200).send({
             status: true,
             message: "userData",
-            userData,
+            userData: sortedUserData,
         });
     } catch (err) {
         res.status(500).send({ status: false, msg: err.message });

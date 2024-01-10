@@ -49,12 +49,17 @@ const addContestData = async function (req, res) {
 const getContestData = async function (req, res) {
     try {
         let page = req.query.page || 1;
-        let pageSize = req.query.pageSize || 10; // Default page size is 10, you can customize it
+        let pageSize = req.query.pageSize || 10;
+        let sortFields = req.query.sortFields || ['startDate'];
+        let sortOrder = req.query.sortOrder || 'asc';
+
+        if (!Array.isArray(sortFields)) {
+            sortFields = [sortFields];
+        }
 
         const contestData = await contestModel
             .find({ isDeleted: false })
-            .select({ startDate: 1, endDate: 1, participants: 1, status:{ $ifNull: ["$status", "active"] }, _id: 1 })
-            .sort({ createdAt: -1 })
+            .select({ startDate: 1, endDate: 1, participants: 1, status: 1, _id: 1 })
             .skip((page - 1) * pageSize)
             .limit(pageSize);
 
@@ -62,10 +67,38 @@ const getContestData = async function (req, res) {
             return res.status(404).send({ status: false, msg: "No contestData found" });
         }
 
+        const sortedContestData = contestData.sort((a, b) => {
+            for (const field of sortFields) {
+                const valueA = a[field];
+                const valueB = b[field];
+
+                if (field === 'participants') {
+                    // Custom sorting for the participants field (treat as string)
+                    const numericValueA = parseInt(valueA) || 0;
+                    const numericValueB = parseInt(valueB) || 0;
+
+                    if (numericValueA !== numericValueB) {
+                        return sortOrder === 'asc' ? numericValueA - numericValueB : numericValueB - numericValueA;
+                    }
+                } else {
+                    // Default sorting for other fields
+                    if (valueA !== undefined && valueB !== undefined) {
+                        return sortOrder === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
+                    } else if (valueA !== undefined) {
+                        return sortOrder === 'asc' ? 1 : -1;
+                    } else if (valueB !== undefined) {
+                        return sortOrder === 'asc' ? -1 : 1;
+                    }
+                }
+            }
+
+            return 0;
+        });
+
         return res.status(200).send({
             status: true,
             message: "contestData",
-            contestData,
+            contestData: sortedContestData,
         });
     } catch (err) {
         res.status(500).send({ status: false, msg: err.message });
