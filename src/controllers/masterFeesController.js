@@ -61,9 +61,11 @@ const feesAdd = async function (req, res) {
 
   const getFees = async function (req, res) {
     try {
+        let page = req.query.page || 1;
+        let pageSize = req.query.pageSize || 10;
+        let sortOrder = req.query.sortOrder || 'asc';
 
-      let page = req.query.page || 1;
-      let pageSize = req.query.pageSize || 10;
+        const sortField = req.query.sortField || 'packageName';
 
         const fees = await feesModel
             .find({ isDeleted: false })
@@ -84,13 +86,31 @@ const feesAdd = async function (req, res) {
             }
 
             return {
-                feeId:fee._id,
+                feeId: fee._id,
                 packageName,
                 price: fee.price,
                 noOfWinner: fee.noOfWinner,
                 noOfTicket: fee.noOfTicket,
             };
         }));
+
+      const numericFields = ['price', 'noOfWinner', 'noOfTicket'];
+
+        transformedFees.forEach((fee) => {
+        numericFields.forEach((field) => {
+        fee[field] = parseInt(fee[field]);
+          });
+       });
+        // Sorting the transformedFees array based on the specified field and sortOrder
+        transformedFees.sort((a, b) => {
+          if (a[sortField] < b[sortField]) {
+              return sortOrder === 'asc' ? -1 : 1;
+          }
+          if (a[sortField] > b[sortField]) {
+              return sortOrder === 'asc' ? 1 : -1;
+          }
+          return 0;
+      });
 
         return res.status(200).send({
             status: true,
