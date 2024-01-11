@@ -173,17 +173,20 @@ const searchFeesPacakageNamewise = async function (req, res) {
       res.status(400).send({ success: false, msg: error.message });
   }
 };
+
 const updateFees = async function (req, res) {
   try {
     let body = req.body
-    let feeId = req.params.feeId
     
    // if (!isValidBody(body)) return res.status(400).send({ status: false, message: "Body is empty to update " })
      if (!isValidBody(body) && !req.files) return res.status(400).send({ status: false, message: "Body is empty to update " })
 
 
-    let {price,noOfWinner,noOfTicket} = body
+    let {price,noOfWinner,noOfTicket,feeId} = body
 
+    if (!ObjectId.isValid(feeId)) {
+      return res.status(400).send({ status: false, message: "feeId is invalid" });
+    }
     
     if ("price" in body) {
       if (!isValid(price)) return res.status(400).send({ status: false, message: "price required" })

@@ -41,12 +41,20 @@ const getPackage = async function (req, res) {
         let page = req.query.page || 1;
         let pageSize = req.query.pageSize || 10;
         let sortOrder = req.query.sortOrder || 'asc';
+        const searchKeyword = req.query.search;
 
         // Validate sortOrder to ensure it's either 'asc' or 'desc'
         sortOrder = sortOrder.toLowerCase() === 'desc' ? -1 : 1;
 
+        const query = {
+            isDeleted: false,
+            $or: [
+                { packageName: { $regex: new RegExp(searchKeyword, 'i') } }
+            ]
+        };
+
         const packageDetail = await packagesModel
-            .find({ isDeleted: false })
+            .find(query)
             .select({
                 packageName: 1,
                 _id: 1
@@ -76,37 +84,37 @@ const getPackage = async function (req, res) {
     }
 };
 
-const searchPackage = async function (req, res) {
-    try {
-        let page = req.query.page || 1;
-        let pageSize = req.query.pageSize || 10;
-        const searchKeyword = req.params.key;
-        const keywordRegex = new RegExp(searchKeyword, 'i');
+// const searchPackage = async function (req, res) {
+//     try {
+//         let page = req.query.page || 1;
+//         let pageSize = req.query.pageSize || 10;
+//         const searchKeyword = req.query.search;
+//         const keywordRegex = new RegExp(searchKeyword, 'i');
 
-        const recordData = await packagesModel.find({
-            $or: [
-                { packageName: { $regex: keywordRegex } }
-            ]
-        }).select({
-            packageName: 1,
-            _id: 1
-        }).skip((page - 1) * pageSize)
-        .limit(pageSize)
+//         const recordData = await packagesModel.find({
+//             $or: [
+//                 { packageName: { $regex: keywordRegex } }
+//             ]
+//         }).select({
+//             packageName: 1,
+//             _id: 1
+//         }).skip((page - 1) * pageSize)
+//         .limit(pageSize)
 
-        if (recordData.length > 0) {
-            const filteredData = recordData.map(package => ({
-                packageId: package._id,
-                packageName: package.packageName,
-            }));
+//         if (recordData.length > 0) {
+//             const filteredData = recordData.map(package => ({
+//                 packageId: package._id,
+//                 packageName: package.packageName,
+//             }));
 
-            res.status(200).send({ success: true, msg: "package Record details", data: filteredData });
-        } else {
-            res.status(404).send({ success: true, msg: "Record not found" });
-        }
-    } catch (error) {
-        res.status(400).send({ success: false, msg: error.message });
-    }
-};
+//             res.status(200).send({ success: true, msg: "package Record details", data: filteredData });
+//         } else {
+//             res.status(404).send({ success: true, msg: "Record not found" });
+//         }
+//     } catch (error) {
+//         res.status(400).send({ success: false, msg: error.message });
+//     }
+// };
 
 const updatePackage = async function (req, res) {
     try {
@@ -157,4 +165,4 @@ const packageDelete = async function (req, res) {
     }
 };
 
-module.exports = {addPackageList,getPackage,packageDelete,updatePackage,searchPackage}
+module.exports = {addPackageList,getPackage,packageDelete,updatePackage}

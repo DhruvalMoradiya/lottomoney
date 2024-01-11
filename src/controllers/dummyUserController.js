@@ -56,13 +56,23 @@ const getDummyUserData = async function (req, res) {
         let pageSize = req.query.pageSize || 10;
         let sortFields = req.query.sortFields || ['firstName']; // Default sort field is 'firstName'
         let sortOrder = req.query.sortOrder || 'asc';
+        const searchKeyword = req.query.search || ''; // Default to an empty string if 'search' parameter is not provided
 
         if (!Array.isArray(sortFields)) {
             sortFields = [sortFields];
         }
 
+        const query = {
+            isDeleted: false,
+            $or: [
+                { firstName: { "$regex": searchKeyword, "$options": "i" } },
+                { lastName: { "$regex": searchKeyword, "$options": "i" } },
+                { userName: { "$regex": searchKeyword, "$options": "i" } }
+            ]
+        };
+
         const dummyUserData = await dummyUserModel
-            .find({ isDeleted: false })
+            .find(query)
             .select({ firstName: 1, lastName: 1, userName: 1, _id: 1 })
             .skip((page - 1) * pageSize)
             .limit(pageSize);

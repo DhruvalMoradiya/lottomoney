@@ -4,7 +4,7 @@ const router = express.Router();
 const {createUser, userLogin, forgotPassword,forgotPasswordEnterOldPassword,updateUserProfile,getUserData} = require("../controllers/userController")
 const {createAdminUser, adminUserLogin, adminChangePassword, updateAdminProfile} = require("../controllers/adminUserController")
 const {authentication ,autherization,authenticationAdmin,autherizationAdmin}= require('../middleware/auth')
-const { addPackageList,getPackage,packageDelete,updatePackage,searchPackage} = require("../controllers/masterPackagesController")
+const { addPackageList,getPackage,packageDelete,updatePackage} = require("../controllers/masterPackagesController")
 const { feesAdd,getFees,updateFees,searchFeesPacakageNamewise,feesDelete } = require("../controllers/masterFeesController")
 const { addAboutUs,getAboutUs } = require("../controllers/configurationAboutController")
 const { addContactUs,getContactUs } = require("../controllers/configurationContactController")
@@ -42,7 +42,7 @@ router.put("/admin/:adminId/resetpassword",authenticationAdmin,autherizationAdmi
  router.post("/packagenameadd",authenticationAdmin,addPackageList)
  router.get("/packagenameget",authenticationAdmin,getPackage)
   //?page=1&pageSize=10&sortOrder=desc
- router.get("/searchpackage/:key",authenticationAdmin,searchPackage)
+//  router.get("/searchpackage",authenticationAdmin,searchPackage)
  router.delete("/package/:packageId",authenticationAdmin,packageDelete)
  router.put("/package/:packageId",authenticationAdmin,updatePackage)
 
@@ -50,8 +50,9 @@ router.put("/admin/:adminId/resetpassword",authenticationAdmin,autherizationAdmi
  router.get("/feesdetailsget",authenticationAdmin,getFees)
   //?page=1&pageSize=10&sortField=noOfTicket&sortOrder=asc
  router.get("/searchfees/:key",authenticationAdmin,searchFeesPacakageNamewise)
+ //router.get("/searchfeesnu/:key",authenticationAdmin,searchFeesPackage)
  router.delete("/fees/:feeId",authenticationAdmin,feesDelete)
- router.put("/fees/:feeId",authenticationAdmin,updateFees)
+ router.put("/fees",authenticationAdmin,updateFees)
  
  router.post("/aboutusadd",authenticationAdmin,addAboutUs)
  router.get("/aboutusget",authenticationAdmin,getAboutUs)
@@ -94,7 +95,7 @@ router.put("/admin/:adminId/resetpassword",authenticationAdmin,autherizationAdmi
 
  router.post("/contestdataadd",authenticationAdmin,addContestData)
  router.get("/contestdataget",getContestData)
- router.get("/searchcontest/:key",authenticationAdmin,searchContest)
+ router.get("/searchcontest",authenticationAdmin,searchContest)
  router.put("/contestupdate/:contestId",authenticationAdmin,updateContest)
  router.delete("/contestdatadelete/:contestId",authenticationAdmin,contestDelete)
 

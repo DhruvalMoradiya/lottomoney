@@ -192,7 +192,7 @@ const updateUserProfile = async function (req, res) {
        if (!isValidBody(body) && !req.files) return res.status(400).send({ status: false, message: "Body is empty to update " })
   
   
-      let { userName, dateOfBirth,gender, email, mobile} = body
+      let { userName, dateOfBirth,gender, email, mobile,countryCode,totalCoin,wonCoin,bonusCoin,status,bankStatus} = body
   
       let files = req.files
       let profileImage;
@@ -238,7 +238,7 @@ const updateUserProfile = async function (req, res) {
         }
       }
     }
-      let result = { userName, dateOfBirth, gender, email, mobile, profileImage }   
+      let result = { userName, dateOfBirth, gender, email, mobile, profileImage,countryCode,totalCoin,wonCoin,bonusCoin,status,bankStatus }   
   
       let update = await userModel.findOneAndUpdate({ _id:user }, result, { new: true })
   

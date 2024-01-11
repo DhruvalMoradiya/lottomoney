@@ -57,8 +57,22 @@ const getContestData = async function (req, res) {
             sortFields = [sortFields];
         }
 
+        let query = { isDeleted: false };
+
+        // Check if it's a search query
+        if (req.query.search) {
+            const key = req.query.search;
+
+            query.$or = [
+                { status: { "$regex": key, "$options": "i" } },
+                { startDate: { "$regex": key, "$options": "i" } },
+                { endDate: { "$regex": key, "$options": "i" } },
+                { participants: { "$regex": key, "$options": "i" } }
+            ];
+        }
+
         const contestData = await contestModel
-            .find({ isDeleted: false })
+            .find(query)
             .select({ startDate: 1, endDate: 1, participants: 1, status: 1, _id: 1 })
             .skip((page - 1) * pageSize)
             .limit(pageSize);
@@ -106,41 +120,9 @@ const getContestData = async function (req, res) {
 };
 
 const searchContest = async function (req, res) {
-    try {
-        let page = req.query.page || 1;
-        let pageSize = req.query.pageSize || 10;
-
-        const key = req.params.key;
-
-        const query = {
-            $or: [
-                { status: { "$regex": key, "$options": "i" } },
-                { startDate: { "$regex": key, "$options": "i" } },
-                { endDate: { "$regex": key, "$options": "i" } },
-                { participants: { "$regex": key, "$options": "i" } }
-            ]
-        };
-
-        const recordData = await contestModel.find(query)
-            .select({
-                startDate: 1,
-                endDate: 1,
-                participants: 1,
-                status: { $ifNull: ["$status", "active"] }, // If status is null or not present, set it to "active"
-                _id: 1
-            })
-            .skip((page - 1) * pageSize)
-            .limit(pageSize);
-
-        if (recordData.length > 0) {
-            res.status(200).send({ success: true, msg: "Contest Record details", data: recordData });
-        } else {
-            res.status(404).send({ success: false, msg: "Record not found" });
-        }
-    } catch (error) {
-        res.status(400).send({ success: false, msg: error.message });
-    }
+    await getContestData(req, res, true);
 };
+
 
 
 
