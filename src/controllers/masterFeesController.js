@@ -125,13 +125,13 @@ const feesAdd = async function (req, res) {
 const getFees = async function (req, res) {
   try {
     const searchKeyword = req.query.search;
-    const sortField = req.query.sortField || '_id'; // Default to sorting by _id if no specific field is provided
-    const sortOrder = req.query.sortOrder === 'desc' ? -1 : 1; // Default to ascending order
+    const sortField = req.query.sortField || '_id';
+    const sortOrder = req.query.sortOrder === 'desc' ? -1 : 1;
     const page = parseInt(req.query.page) || 1;
     const pageSize = parseInt(req.query.pageSize) || 10;
 
     const keywordRegex = new RegExp(searchKeyword, 'i');
-    const isNumeric = !isNaN(searchKeyword); // Check if the search keyword is numeric
+    const isNumeric = !isNaN(searchKeyword);
 
     const aggregatePipeline = [
       {
@@ -143,37 +143,39 @@ const getFees = async function (req, res) {
         },
       },
       {
+        $match: {
+          feesData: { $exists: true, $ne: [] }, // Filter out documents without feesData
+        },
+      },
+      {
+        $unwind: {
+          path: '$feesData',
+          preserveNullAndEmptyArrays: true,
+        },
+      },
+      {
         $project: {
           _id: 1,
           packageName: 1,
-          feesData: {
-            $cond: {
-              if: { $gt: [{ $size: '$feesData' }, 0] },
-              then: {
-                feeId: { $arrayElemAt: ['$feesData._id', 0] },
-                price: { $toInt: { $arrayElemAt: ['$feesData.price', 0] } },
-                noOfWinner: { $toInt: { $arrayElemAt: ['$feesData.noOfWinner', 0] } },
-                noOfTicket: { $toInt: { $arrayElemAt: ['$feesData.noOfTicket', 0] } },
-              },
-              else: null,
-            },
-          },
+          feeId: '$feesData._id',
+          price: { $toInt: '$feesData.price' },
+          noOfWinner: { $toInt: '$feesData.noOfWinner' },
+          noOfTicket: { $toInt: '$feesData.noOfTicket' },
         },
       },
       {
         $match: {
           $or: [
             { packageName: { $regex: keywordRegex } },
-            { 'feesData.price': isNumeric ? { $eq: parseInt(searchKeyword) } : { $regex: keywordRegex } },
-            { 'feesData.noOfWinner': isNumeric ? { $eq: parseInt(searchKeyword) } : { $regex: keywordRegex } },
-            { 'feesData.noOfTicket': isNumeric ? { $eq: parseInt(searchKeyword) } : { $regex: keywordRegex } },
+            { price: isNumeric ? { $eq: parseInt(searchKeyword) } : { $regex: keywordRegex } },
+            { noOfWinner: isNumeric ? { $eq: parseInt(searchKeyword) } : { $regex: keywordRegex } },
+            { noOfTicket: isNumeric ? { $eq: parseInt(searchKeyword) } : { $regex: keywordRegex } },
           ],
         },
       },
       {
         $sort: {
           [sortField]: sortOrder,
-          'feesData.price': sortOrder, // Add this line for sorting nested feesData by price
         },
       },
       {
@@ -186,22 +188,10 @@ const getFees = async function (req, res) {
 
     const packagesWithFees = await packagesModel.aggregate(aggregatePipeline);
 
-    const responseFeesList = packagesWithFees.map(record => {
-      return record.feesData
-        ? {
-            feeId: record.feesData.feeId,
-            packageName: record.packageName,
-            price: record.feesData.price,
-            noOfWinner: record.feesData.noOfWinner,
-            noOfTicket: record.feesData.noOfTicket,
-          }
-        : null;
-    });
-
     res.status(200).json({
       status: true,
       message: 'Packages with associated fees',
-      feesList: responseFeesList.filter(Boolean),
+      feesList: packagesWithFees,
     });
   } catch (error) {
     console.error('Error in getFees:', error);
