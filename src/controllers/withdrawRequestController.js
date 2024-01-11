@@ -150,7 +150,7 @@ const addWithdrawRequestData = async function (req, res) {
     try {
         let page = req.query.page || 1;
         let pageSize = req.query.pageSize || 10;
-        const searchKeyword = req.params.key;
+        const searchKeyword = req.query.search;
         const keywordRegex = new RegExp(searchKeyword, 'i');
 
         // Search in userModel for userName or mobile
