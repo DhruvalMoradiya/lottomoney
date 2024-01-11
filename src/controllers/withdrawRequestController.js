@@ -146,162 +146,109 @@ const addWithdrawRequestData = async function (req, res) {
     }
 };
 
-  const searchWithdrawRequest = async function (req, res) {
+const searchWithdrawRequest = async function (req, res) {
     try {
-        let page = req.query.page || 1;
-        let pageSize = req.query.pageSize || 10;
-        const searchKeyword = req.query.search;
-        const keywordRegex = new RegExp(searchKeyword, 'i');
-
-        // Search in userModel for userName or mobile
-        const recordData = await userModel.find({
-            $or: [
-                { userName: { $regex: keywordRegex } },
-                { mobile: { $regex: keywordRegex } },
-            ]
-        }).select({
+      let page = parseInt(req.query.page) || 1;
+      let pageSize = parseInt(req.query.pageSize) || 10;
+      const searchKeyword = req.query.search;
+      const keywordRegex = new RegExp(searchKeyword, 'i');
+      const isNumeric = !isNaN(searchKeyword);
+      const sortField = req.query.sortField || '_id'; // Default sort field
+      const sortOrder = req.query.sortOrder === 'desc' ? -1 : 1; // Default to ascending order
+  
+      const aggregatePipeline = [
+        {
+          $lookup: {
+            from: 'withdrawrequests',
+            localField: '_id',
+            foreignField: 'userId',
+            as: 'withdrawRequestData',
+          },
+        },
+        {
+          $unwind: {
+            path: '$withdrawRequestData',
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $match: {
+            withdrawRequestData: { $exists: true },
+          },
+        },
+        {
+          $project: {
             userName: 1,
             mobile: 1,
-            _id:1
-        })
-        .skip((page - 1) * pageSize)
-        .limit(pageSize);
-
-        if (recordData.length === 0) {
-            return res.status(404).send({ success: true, msg: "Record not found" });
-        }
-
-        const modifiedWithdrawRequestDetail = [];
-
-        for (const user of recordData) {
-            // Search in withdrawRequestModel for associated records
-            const feesData = await withdrawRequestModel
-                .find({ userId: user._id })
-                .select({ paymentId: 1, amount: 1, wallet: 1, accountNo: 1, remark: 1, status: 1, createdAt:1, _id: 1 });
-
-            if (feesData.length > 0) {
-                const withdrawRequest = feesData.map((withdrawRequest) => ({
-                    paymentId: withdrawRequest.paymentId,
-                    amount: withdrawRequest.amount,
-                    wallet: withdrawRequest.wallet,
-                    accountNo: withdrawRequest.accountNo,
-                    remark: withdrawRequest.remark,
-                    status: withdrawRequest.status,
-                    date:withdrawRequest.createdAt,
-                    orderId: withdrawRequest._id,
-                }));
-
-                modifiedWithdrawRequestDetail.push({
-                    userName: user.userName,
-                    mobile: user.mobile,
-                    ...withdrawRequest[0], // Spread the properties directly into the main object
-                });
-            }
-        }
-
-        if (modifiedWithdrawRequestDetail.length > 0) {
-            const filteredData = modifiedWithdrawRequestDetail.filter(record =>
-                record.userName.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-                record.mobile.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-                record.paymentId.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-                record.amount.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-                record.wallet.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-                record.accountNo.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-                record.remark.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-                record.status.toLowerCase().includes(searchKeyword.toLowerCase()) ||
-                record.orderId.toLowerCase().includes(searchKeyword.toLowerCase())
-            );
-
-            res.status(200).send({ success: true, msg: "Fees Record details", data: filteredData });
-        } else {
-            res.status(404).send({ success: true, msg: "No associated records found" });
-        }
+            paymentId: {
+              $convert: {
+                input: '$withdrawRequestData.paymentId',
+                to: 'int',
+                onError: 0,
+                onNull: 0,
+              },
+            },
+            amount: {
+              $convert: {
+                input: '$withdrawRequestData.amount',
+                to: 'int',
+                onError: 0,
+                onNull: 0,
+              },
+            },
+            wallet: '$withdrawRequestData.wallet',
+            accountNo: {
+              $convert: {
+                input: '$withdrawRequestData.accountNo',
+                to: 'int',
+                onError: 0,
+                onNull: 0,
+              },
+            },
+            remark: '$withdrawRequestData.remark',
+            status: '$withdrawRequestData.status',
+            orderId: '$withdrawRequestData._id',
+            date: '$withdrawRequestData.createdAt',
+          },
+        },
+        {
+          $match: {
+            $or: [
+              { userName: { $regex: keywordRegex } },
+              { mobile: { $regex: keywordRegex } },
+              { paymentId: isNumeric ? { $eq: parseInt(searchKeyword) } : { $regex: keywordRegex } },
+              { amount: isNumeric ? { $eq: parseInt(searchKeyword) } : { $regex: keywordRegex } },
+              { wallet: { $regex: keywordRegex } },
+              { accountNo: isNumeric ? { $eq: parseInt(searchKeyword) } : { $regex: keywordRegex } },
+              { remark: { $regex: keywordRegex } },
+              { status: { $regex: keywordRegex } },
+              { date: { $regex: keywordRegex } },
+            ],
+          },
+        },
+        {
+          $sort: { [sortField]: sortOrder },
+        },
+        {
+          $skip: (page - 1) * pageSize,
+        },
+        {
+          $limit: pageSize,
+        },
+      ];
+  
+      const result = await userModel.aggregate(aggregatePipeline);
+  
+      console.log('Result:', result);
+  
+      if (result.length > 0) {
+        res.status(200).send({ success: true, msg: "Withdraw Request details", data: result });
+      } else {
+        res.status(404).send({ success: true, msg: "No associated records found" });
+      }
     } catch (error) {
-        res.status(400).send({ success: false, msg: error.message });
+      res.status(400).send({ success: false, msg: error.message });
     }
-};
-
-
-// const searchWithdrawRequest = async function (req, res) {
-//     try {
-//       let page = req.query.page || 1;
-//       let pageSize = req.query.pageSize || 10;
-//       const searchKeyword = req.query.key;
-//       const keywordRegex = new RegExp(searchKeyword, 'i');
-  
-//       const aggregatePipeline = [
-//         {
-//             $match: {
-//                 $or: [
-//                   { userName: { $regex: keywordRegex } },
-//                   { mobile: { $regex: keywordRegex } },
-//                   { 'withdrawRequestData.paymentId': { $regex: keywordRegex } },
-//                   { 'withdrawRequestData.amount': { $regex: keywordRegex } },
-//                   { 'withdrawRequestData.wallet': { $regex: keywordRegex } },
-//                   { 'withdrawRequestData.accountNo': { $regex: keywordRegex } },
-//                   { 'withdrawRequestData.remark': { $regex: keywordRegex } },
-//                   { 'withdrawRequestData.status': { $regex: keywordRegex } },
-//                   { 'withdrawRequestData.createdAt': { $regex: keywordRegex } },
-//                   { 'withdrawRequestData._id': { $regex: keywordRegex } },
-//                 ],
-//               },
-//         },
-//         {
-//           $lookup: {
-//             from: 'withdrawrequests', // Assuming the name of your withdrawal request collection
-//             localField: '_id',
-//             foreignField: 'userId',
-//             as: 'withdrawRequestData',
-//           },
-//         },
-//         {
-//           $unwind: {
-//             path: '$withdrawRequestData',
-//             preserveNullAndEmptyArrays: true,
-//           },
-//         },
-//         {
-//           $match: {
-//             withdrawRequestData: { $exists: true } // Filter out users without associated data
-//           },
-//         },
-//         {
-//           $project: {
-//             userName: 1,
-//             mobile: 1,
-//             paymentId: '$withdrawRequestData.paymentId',
-//             amount: '$withdrawRequestData.amount',
-//             wallet: '$withdrawRequestData.wallet',
-//             accountNo: '$withdrawRequestData.accountNo',
-//             remark: '$withdrawRequestData.remark',
-//             status: '$withdrawRequestData.status',
-//             date: '$withdrawRequestData.createdAt',
-//             orderId: '$withdrawRequestData._id',
-//           },
-//         },
-//         {
-//           $skip: (page - 1) * pageSize,
-//         },
-//         {
-//           $limit: pageSize,
-//         },
-//       ];
-  
-//       const result = await userModel.aggregate(aggregatePipeline);
-
-//       console.log('Result:', result); // Add this line for debugging
-      
-//       console.log('Search Keyword:', searchKeyword);
-// console.log('Intermediate Result after $match:', result);
-
-//   if (result.length > 0) {
-//   res.status(200).send({ success: true, msg: "Withdraw Request details", data: result });
-//  } else {
-//   res.status(404).send({ success: true, msg: "No associated records found" });
-// }
-//     } catch (error) {
-//       res.status(400).send({ success: false, msg: error.message });
-//     }
-// };
+  };
 
   module.exports = {addWithdrawRequestData,getWithdrawRequestData,searchWithdrawRequest}
