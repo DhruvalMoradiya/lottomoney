@@ -221,4 +221,87 @@ const addWithdrawRequestData = async function (req, res) {
     }
 };
 
+
+// const searchWithdrawRequest = async function (req, res) {
+//     try {
+//       let page = req.query.page || 1;
+//       let pageSize = req.query.pageSize || 10;
+//       const searchKeyword = req.query.key;
+//       const keywordRegex = new RegExp(searchKeyword, 'i');
+  
+//       const aggregatePipeline = [
+//         {
+//             $match: {
+//                 $or: [
+//                   { userName: { $regex: keywordRegex } },
+//                   { mobile: { $regex: keywordRegex } },
+//                   { 'withdrawRequestData.paymentId': { $regex: keywordRegex } },
+//                   { 'withdrawRequestData.amount': { $regex: keywordRegex } },
+//                   { 'withdrawRequestData.wallet': { $regex: keywordRegex } },
+//                   { 'withdrawRequestData.accountNo': { $regex: keywordRegex } },
+//                   { 'withdrawRequestData.remark': { $regex: keywordRegex } },
+//                   { 'withdrawRequestData.status': { $regex: keywordRegex } },
+//                   { 'withdrawRequestData.createdAt': { $regex: keywordRegex } },
+//                   { 'withdrawRequestData._id': { $regex: keywordRegex } },
+//                 ],
+//               },
+//         },
+//         {
+//           $lookup: {
+//             from: 'withdrawrequests', // Assuming the name of your withdrawal request collection
+//             localField: '_id',
+//             foreignField: 'userId',
+//             as: 'withdrawRequestData',
+//           },
+//         },
+//         {
+//           $unwind: {
+//             path: '$withdrawRequestData',
+//             preserveNullAndEmptyArrays: true,
+//           },
+//         },
+//         {
+//           $match: {
+//             withdrawRequestData: { $exists: true } // Filter out users without associated data
+//           },
+//         },
+//         {
+//           $project: {
+//             userName: 1,
+//             mobile: 1,
+//             paymentId: '$withdrawRequestData.paymentId',
+//             amount: '$withdrawRequestData.amount',
+//             wallet: '$withdrawRequestData.wallet',
+//             accountNo: '$withdrawRequestData.accountNo',
+//             remark: '$withdrawRequestData.remark',
+//             status: '$withdrawRequestData.status',
+//             date: '$withdrawRequestData.createdAt',
+//             orderId: '$withdrawRequestData._id',
+//           },
+//         },
+//         {
+//           $skip: (page - 1) * pageSize,
+//         },
+//         {
+//           $limit: pageSize,
+//         },
+//       ];
+  
+//       const result = await userModel.aggregate(aggregatePipeline);
+
+//       console.log('Result:', result); // Add this line for debugging
+      
+//       console.log('Search Keyword:', searchKeyword);
+// console.log('Intermediate Result after $match:', result);
+
+//   if (result.length > 0) {
+//   res.status(200).send({ success: true, msg: "Withdraw Request details", data: result });
+//  } else {
+//   res.status(404).send({ success: true, msg: "No associated records found" });
+// }
+//     } catch (error) {
+//       res.status(400).send({ success: false, msg: error.message });
+//     }
+// };
+
   module.exports = {addWithdrawRequestData,getWithdrawRequestData,searchWithdrawRequest}

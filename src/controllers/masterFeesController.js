@@ -59,134 +59,171 @@ const feesAdd = async function (req, res) {
     }
   };
 
-  const getFees = async function (req, res) {
-    try {
-        let page = req.query.page || 1;
-        let pageSize = req.query.pageSize || 10;
-        let sortOrder = req.query.sortOrder || 'asc';
+//   const getFees = async function (req, res) {
+//     try {
+//         let page = req.query.page || 1;
+//         let pageSize = req.query.pageSize || 10;
+//         let sortOrder = req.query.sortOrder || 'asc';
 
-        const sortField = req.query.sortField || 'packageName';
+//         const sortField = req.query.sortField || 'packageName';
 
-        const fees = await feesModel
-            .find({ isDeleted: false })
-            .select({ price: 1, noOfWinner: 1, noOfTicket: 1, packageId: 1, _id: 1 })
-            .skip((page - 1) * pageSize)
-            .limit(pageSize);
+//         const fees = await feesModel
+//             .find({ isDeleted: false })
+//             .select({ price: 1, noOfWinner: 1, noOfTicket: 1, packageId: 1, _id: 1 })
+//             .skip((page - 1) * pageSize)
+//             .limit(pageSize);
 
-        if (fees.length === 0) {
-            return res.status(404).send({ status: false, msg: "No data found" });
-        }
+//         if (fees.length === 0) {
+//             return res.status(404).send({ status: false, msg: "No data found" });
+//         }
 
-        const transformedFees = await Promise.all(fees.map(async (fee) => {
-            let packageName = "Unknown Package";
+//         const transformedFees = await Promise.all(fees.map(async (fee) => {
+//             let packageName = "Unknown Package";
 
-            if (fee.packageId) {
-                const packageDetail = await packagesModel.findOne({ _id: fee.packageId, isDeleted: false });
-                packageName = packageDetail ? packageDetail.packageName : "Unknown Package";
-            }
+//             if (fee.packageId) {
+//                 const packageDetail = await packagesModel.findOne({ _id: fee.packageId, isDeleted: false });
+//                 packageName = packageDetail ? packageDetail.packageName : "Unknown Package";
+//             }
 
-            return {
-                feeId: fee._id,
-                packageName,
-                price: fee.price,
-                noOfWinner: fee.noOfWinner,
-                noOfTicket: fee.noOfTicket,
-            };
-        }));
+//             return {
+//                 feeId: fee._id,
+//                 packageName,
+//                 price: fee.price,
+//                 noOfWinner: fee.noOfWinner,
+//                 noOfTicket: fee.noOfTicket,
+//             };
+//         }));
 
-      const numericFields = ['price', 'noOfWinner', 'noOfTicket'];
+//       const numericFields = ['price', 'noOfWinner', 'noOfTicket'];
 
-        transformedFees.forEach((fee) => {
-        numericFields.forEach((field) => {
-        fee[field] = parseInt(fee[field]);
-          });
-       });
-        // Sorting the transformedFees array based on the specified field and sortOrder
-        transformedFees.sort((a, b) => {
-          if (a[sortField] < b[sortField]) {
-              return sortOrder === 'asc' ? -1 : 1;
-          }
-          if (a[sortField] > b[sortField]) {
-              return sortOrder === 'asc' ? 1 : -1;
-          }
-          return 0;
-      });
+//         transformedFees.forEach((fee) => {
+//         numericFields.forEach((field) => {
+//         fee[field] = parseInt(fee[field]);
+//           });
+//        });
+//         // Sorting the transformedFees array based on the specified field and sortOrder
+//         transformedFees.sort((a, b) => {
+//           if (a[sortField] < b[sortField]) {
+//               return sortOrder === 'asc' ? -1 : 1;
+//           }
+//           if (a[sortField] > b[sortField]) {
+//               return sortOrder === 'asc' ? 1 : -1;
+//           }
+//           return 0;
+//       });
 
-        return res.status(200).send({
-            status: true,
-            message: "feesData",
-            feesList: transformedFees,
-        });
-    } catch (err) {
-        res.status(500).send({ status: false, msg: err.message });
-    }
-};
+//         return res.status(200).send({
+//             status: true,
+//             message: "feesData",
+//             feesList: transformedFees,
+//         });
+//     } catch (err) {
+//         res.status(500).send({ status: false, msg: err.message });
+//     }
+// };
 
-const searchFeesPacakageNamewise = async function (req, res) {
+const getFees = async function (req, res) {
   try {
-      let page = req.query.page || 1;
-      let pageSize = req.query.pageSize || 10;
-      const searchKeyword = req.params.key;
-      const keywordRegex = new RegExp(searchKeyword, 'i');
+    const searchKeyword = req.query.search;
+    const sortField = req.query.sortField || '_id'; // Default to sorting by _id if no specific field is provided
+    const sortOrder = req.query.sortOrder === 'desc' ? -1 : 1; // Default to ascending order
+    const page = parseInt(req.query.page) || 1;
+    const pageSize = parseInt(req.query.pageSize) || 10;
 
-      const recordData = await packagesModel.find({
-          $or: [
-              { packageName: { $regex: keywordRegex } }
-          ]
-      }).select({
+    const keywordRegex = new RegExp(searchKeyword, 'i');
+    const isNumeric = !isNaN(searchKeyword); // Check if the search keyword is numeric
+
+    const aggregatePipeline = [
+      {
+        $lookup: {
+          from: 'fees',
+          localField: '_id',
+          foreignField: 'packageId',
+          as: 'feesData',
+        },
+      },
+      {
+        $project: {
+          _id: 1,
           packageName: 1,
-          _id: 1
-      })
-      .skip((page - 1) * pageSize)
-            .limit(pageSize);
+          feesData: {
+            $cond: {
+              if: { $gt: [{ $size: '$feesData' }, 0] },
+              then: {
+                feeId: { $arrayElemAt: ['$feesData._id', 0] },
+                price: { $toInt: { $arrayElemAt: ['$feesData.price', 0] } },
+                noOfWinner: { $toInt: { $arrayElemAt: ['$feesData.noOfWinner', 0] } },
+                noOfTicket: { $toInt: { $arrayElemAt: ['$feesData.noOfTicket', 0] } },
+              },
+              else: null,
+            },
+          },
+        },
+      },
+      {
+        $match: {
+          $or: [
+            { packageName: { $regex: keywordRegex } },
+            { 'feesData.price': isNumeric ? { $eq: parseInt(searchKeyword) } : { $regex: keywordRegex } },
+            { 'feesData.noOfWinner': isNumeric ? { $eq: parseInt(searchKeyword) } : { $regex: keywordRegex } },
+            { 'feesData.noOfTicket': isNumeric ? { $eq: parseInt(searchKeyword) } : { $regex: keywordRegex } },
+          ],
+        },
+      },
+      {
+        $sort: {
+          [sortField]: sortOrder,
+          'feesData.price': sortOrder, // Add this line for sorting nested feesData by price
+        },
+      },
+      {
+        $skip: (page - 1) * pageSize,
+      },
+      {
+        $limit: pageSize,
+      },
+    ];
 
-      const modifiedPackageDetail = [];
+    const packagesWithFees = await packagesModel.aggregate(aggregatePipeline);
 
-      for (const package of recordData) {
-          const feesData = await feesModel
-              .find({ packageId: package._id })
-              .select({ price: 1, noOfWinner: 1, noOfTicket: 1 });
+    const responseFeesList = packagesWithFees.map(record => {
+      return record.feesData
+        ? {
+            feeId: record.feesData.feeId,
+            packageName: record.packageName,
+            price: record.feesData.price,
+            noOfWinner: record.feesData.noOfWinner,
+            noOfTicket: record.feesData.noOfTicket,
+          }
+        : null;
+    });
 
-          const feesDataForCollection = feesData.map((fees) => ({
-              price: fees.price,
-              noOfWinner: fees.noOfWinner,
-              noOfTicket: fees.noOfTicket,
-          }));
-
-          modifiedPackageDetail.push({
-              _id: package._id,
-              packageName: package.packageName,
-              ...feesDataForCollection[0], // Spread the properties directly into the main object
-          });
-      }
-
-      if (recordData.length > 0) {
-          const filteredData = modifiedPackageDetail.filter(record =>
-              record.packageName.toLowerCase().includes(searchKeyword.toLowerCase())
-          );
-
-          res.status(200).send({ success: true, msg: "Fees Record details", data: filteredData });
-      } else {
-          res.status(404).send({ success: true, msg: "Record not found" });
-      }
+    res.status(200).json({
+      status: true,
+      message: 'Packages with associated fees',
+      feesList: responseFeesList.filter(Boolean),
+    });
   } catch (error) {
-      res.status(400).send({ success: false, msg: error.message });
+    console.error('Error in getFees:', error);
+    res.status(500).json({
+      status: false,
+      message: 'Internal Server Error',
+      error: error.message,
+    });
   }
 };
 
 const updateFees = async function (req, res) {
   try {
     let body = req.body
+    let feeId = req.params.feeId
     
    // if (!isValidBody(body)) return res.status(400).send({ status: false, message: "Body is empty to update " })
      if (!isValidBody(body) && !req.files) return res.status(400).send({ status: false, message: "Body is empty to update " })
 
 
-    let {price,noOfWinner,noOfTicket,feeId} = body
+    let {price,noOfWinner,noOfTicket} = body
 
-    if (!ObjectId.isValid(feeId)) {
-      return res.status(400).send({ status: false, message: "feeId is invalid" });
-    }
     
     if ("price" in body) {
       if (!isValid(price)) return res.status(400).send({ status: false, message: "price required" })
@@ -231,4 +268,4 @@ const feesDelete = async function (req, res) {
   }
 };
 
-  module.exports = {feesAdd,getFees,updateFees,searchFeesPacakageNamewise,feesDelete}
+  module.exports = {feesAdd,getFees,updateFees,feesDelete}
