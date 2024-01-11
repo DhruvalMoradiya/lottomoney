@@ -49,7 +49,7 @@ router.put("/admin/:adminId/resetpassword",authenticationAdmin,autherizationAdmi
  router.post("/feesdetailsadd/:packageId",authenticationAdmin,feesAdd)
  router.get("/feesdetailsget",authenticationAdmin,getFees)
   //?page=1&pageSize=10&sortField=noOfTicket&sortOrder=asc
- router.get("/searchfees/:key",authenticationAdmin,searchFeesPacakageNamewise)
+ //router.get("/searchfees",authenticationAdmin,searchFeesPacakageNamewise)
  //router.get("/searchfeesnu/:key",authenticationAdmin,searchFeesPackage)
  router.delete("/fees/:feeId",authenticationAdmin,feesDelete)
  router.put("/fees",authenticationAdmin,updateFees)
@@ -108,7 +108,7 @@ router.put("/admin/:adminId/resetpassword",authenticationAdmin,autherizationAdmi
 
  router.post("/sendwithdrawrequest",authentication,addWithdrawRequestData)
  router.get("/withdrawrequest",authenticationAdmin,getWithdrawRequestData)
- router.get("/searchwithdrawrequest/:key",authenticationAdmin,searchWithdrawRequest)
+ router.get("/searchwithdrawrequest",authenticationAdmin,searchWithdrawRequest)
 
 
  router.post("/sendnotificationadd",authenticationAdmin,addSendNotificationData)
