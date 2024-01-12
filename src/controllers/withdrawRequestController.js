@@ -66,87 +66,87 @@ const addWithdrawRequestData = async function (req, res) {
   };
 
 
-  const getWithdrawRequestData = async function (req, res) {
-    try {
-        let page = req.query.page || 1;
-        let pageSize = req.query.pageSize || 10;
-        let sortFields = req.query.sortFields || ['userName']; // Default sort field is 'userName'
-        let sortOrder = req.query.sortOrder || 'asc';
+//   const getWithdrawRequestData = async function (req, res) {
+//     try {
+//         let page = req.query.page || 1;
+//         let pageSize = req.query.pageSize || 10;
+//         let sortFields = req.query.sortFields || ['userName']; // Default sort field is 'userName'
+//         let sortOrder = req.query.sortOrder || 'asc';
 
-        if (!Array.isArray(sortFields)) {
-            sortFields = [sortFields];
-        }
+//         if (!Array.isArray(sortFields)) {
+//             sortFields = [sortFields];
+//         }
 
-        const withdrawRequests = await withdrawRequestModel
-            .find({ isDeleted: false })
-            .select({ userId: 1, paymentId: 1, amount: 1, wallet: 1, accountNo: 1, remark: 1, status: 1, createdAt: 1, _id: 1 })
-            .skip((page - 1) * pageSize)
-            .limit(pageSize);
+//         const withdrawRequests = await withdrawRequestModel
+//             .find({ isDeleted: false })
+//             .select({ userId: 1, paymentId: 1, amount: 1, wallet: 1, accountNo: 1, remark: 1, status: 1, createdAt: 1, _id: 1 })
+//             .skip((page - 1) * pageSize)
+//             .limit(pageSize);
 
-        if (withdrawRequests.length === 0) {
-            return res.status(404).send({ status: false, msg: "No data found" });
-        }
+//         if (withdrawRequests.length === 0) {
+//             return res.status(404).send({ status: false, msg: "No data found" });
+//         }
 
-        const transformedWithdrawRequests = await Promise.all(withdrawRequests.map(async (withdrawRequest) => {
-            let userName = "Unknown User"; // Default value if userId is not present
-            let mobile = "Unknown Mobile"; // Default value if userId is not present
+//         const transformedWithdrawRequests = await Promise.all(withdrawRequests.map(async (withdrawRequest) => {
+//             let userName = "Unknown User"; // Default value if userId is not present
+//             let mobile = "Unknown Mobile"; // Default value if userId is not present
 
-            if (withdrawRequest.userId) {
-                const userDetail = await userModel.findOne({ _id: withdrawRequest.userId, isDeleted: false });
+//             if (withdrawRequest.userId) {
+//                 const userDetail = await userModel.findOne({ _id: withdrawRequest.userId, isDeleted: false });
 
-                // Check if userDetail is not null before accessing properties
-                if (userDetail) {
-                    userName = userDetail.userName || userName;
-                    mobile = userDetail.mobile || mobile;
-                }
-            }
+//                 // Check if userDetail is not null before accessing properties
+//                 if (userDetail) {
+//                     userName = userDetail.userName || userName;
+//                     mobile = userDetail.mobile || mobile;
+//                 }
+//             }
 
-            return {
-                userId: withdrawRequest.userId,
-                userName,
-                mobile,
-                paymentId: withdrawRequest.paymentId,
-                amount: withdrawRequest.amount,
-                wallet: withdrawRequest.wallet,
-                accountNo: withdrawRequest.accountNo,
-                remark: withdrawRequest.remark,
-                status: withdrawRequest.status,
-                orderId: withdrawRequest._id,
-                date: withdrawRequest.createdAt
-            };
-        }));
+//             return {
+//                 userId: withdrawRequest.userId,
+//                 userName,
+//                 mobile,
+//                 paymentId: withdrawRequest.paymentId,
+//                 amount: withdrawRequest.amount,
+//                 wallet: withdrawRequest.wallet,
+//                 accountNo: withdrawRequest.accountNo,
+//                 remark: withdrawRequest.remark,
+//                 status: withdrawRequest.status,
+//                 orderId: withdrawRequest._id,
+//                 date: withdrawRequest.createdAt
+//             };
+//         }));
 
-        const sortOptions = {};
-        for (const field of sortFields) {
-            sortOptions[field] = sortOrder === 'asc' ? 1 : -1;
-        }
+//         const sortOptions = {};
+//         for (const field of sortFields) {
+//             sortOptions[field] = sortOrder === 'asc' ? 1 : -1;
+//         }
 
-        const sortedWithdrawRequests = transformedWithdrawRequests.sort((a, b) => {
-            for (const field of sortFields) {
-                const valueA = a[field];
-                const valueB = b[field];
+//         const sortedWithdrawRequests = transformedWithdrawRequests.sort((a, b) => {
+//             for (const field of sortFields) {
+//                 const valueA = a[field];
+//                 const valueB = b[field];
 
-                // Default sorting for non-numeric fields
-                const compareResult = sortOrder === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
-                if (compareResult !== 0) {
-                    return compareResult;
-                }
-            }
-            return 0;
+//                 // Default sorting for non-numeric fields
+//                 const compareResult = sortOrder === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
+//                 if (compareResult !== 0) {
+//                     return compareResult;
+//                 }
+//             }
+//             return 0;
             
-        });
+//         });
 
-        return res.status(200).send({
-            status: true,
-            message: "Withdraw Request Data",
-            withdrawRequestData: sortedWithdrawRequests,
-        });
-    } catch (err) {
-        res.status(500).send({ status: false, msg: err.message });
-    }
-};
+//         return res.status(200).send({
+//             status: true,
+//             message: "Withdraw Request Data",
+//             withdrawRequestData: sortedWithdrawRequests,
+//         });
+//     } catch (err) {
+//         res.status(500).send({ status: false, msg: err.message });
+//     }
+// };
 
-const searchWithdrawRequest = async function (req, res) {
+const getWithdrawRequestData = async function (req, res) {
     try {
       let page = parseInt(req.query.page) || 1;
       let pageSize = parseInt(req.query.pageSize) || 10;
@@ -251,4 +251,4 @@ const searchWithdrawRequest = async function (req, res) {
     }
   };
 
-  module.exports = {addWithdrawRequestData,getWithdrawRequestData,searchWithdrawRequest}
+  module.exports = {addWithdrawRequestData,getWithdrawRequestData}
