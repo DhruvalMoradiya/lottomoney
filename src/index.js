@@ -11,7 +11,7 @@ const session = require('express-session');
 app.use(cors());
 const Url = process.env.url;
 const PORT = process.env.PORT;
-const allowedOrigins = ['http://localhost:4000', 'http://43.204.179.247:3000'];
+const allowedOrigins = ['http://localhost:3000', 'http://3.26.54.251:3000'];
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   if (allowedOrigins.includes(origin)) {
