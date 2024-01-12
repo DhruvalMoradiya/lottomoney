@@ -121,7 +121,6 @@ const updatePackage = async function (req, res) {
       let body = req.body
       let packageId = req.params.packageId
       
-     // if (!isValidBody(body)) return res.status(400).send({ status: false, message: "Body is empty to update " })
        if (!isValidBody(body) && !req.files) return res.status(400).send({ status: false, message: "Body is empty to update " })
   
   

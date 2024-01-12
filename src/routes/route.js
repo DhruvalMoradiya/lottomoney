@@ -5,7 +5,7 @@ const {createUser, userLogin, forgotPassword,forgotPasswordEnterOldPassword,upda
 const {createAdminUser, adminUserLogin, adminChangePassword, updateAdminProfile} = require("../controllers/adminUserController")
 const {authentication ,autherization,authenticationAdmin,autherizationAdmin}= require('../middleware/auth')
 const { addPackageList,getPackage,packageDelete,updatePackage} = require("../controllers/masterPackagesController")
-const { feesAdd,getFees,updateFees,searchFeesPacakageNamewise,feesDelete } = require("../controllers/masterFeesController")
+const { feesAdd,getFees,updateFees,feesDelete } = require("../controllers/masterFeesController")
 const { addAboutUs,getAboutUs } = require("../controllers/configurationAboutController")
 const { addContactUs,getContactUs } = require("../controllers/configurationContactController")
 const { addBasicInfo,getBasicInfo } = require("../controllers/appDetailsBasicInfoController")
@@ -22,7 +22,7 @@ const {addModeofPayment,getModeofPaymentDetail} = require("../controllers/appDet
 const {addRazorPay,getRazorPay} = require("../controllers/paymentGatewayRazorPayController")
 const {addPaytmData,getPaytmData} = require("../controllers/paymentGatewayPaytmController")
 const {addUpi,getUpi} = require("../controllers/paymentGatewayUpiController")
-const {addWithdrawRequestData,getWithdrawRequestData,searchWithdrawRequest} = require("../controllers/withdrawRequestController")
+const {addWithdrawRequestData,getWithdrawRequestData} = require("../controllers/withdrawRequestController")
 
 router.post("/register",createUser)
 router.post("/login", userLogin)
