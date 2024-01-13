@@ -77,42 +77,37 @@ const getContestData = async function (req, res) {
             .skip((page - 1) * pageSize)
             .limit(pageSize);
 
-        if (!contestData || contestData.length === 0) {
-            return res.status(404).send({ status: false, msg: "No contestData found" });
-        }
-
-        const sortedContestData = contestData.sort((a, b) => {
-            for (const field of sortFields) {
-                const valueA = a[field];
-                const valueB = b[field];
-
-                if (field === 'participants') {
-                    // Custom sorting for the participants field (treat as string)
-                    const numericValueA = parseInt(valueA) || 0;
-                    const numericValueB = parseInt(valueB) || 0;
-
-                    if (numericValueA !== numericValueB) {
-                        return sortOrder === 'asc' ? numericValueA - numericValueB : numericValueB - numericValueA;
-                    }
-                } else {
-                    // Default sorting for other fields
-                    if (valueA !== undefined && valueB !== undefined) {
-                        return sortOrder === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
-                    } else if (valueA !== undefined) {
-                        return sortOrder === 'asc' ? 1 : -1;
-                    } else if (valueB !== undefined) {
-                        return sortOrder === 'asc' ? -1 : 1;
-                    }
-                }
-            }
-
-            return 0;
-        });
-
+        // Always return a 200 status, whether data is found or not
         return res.status(200).send({
             status: true,
             message: "contestData",
-            contestData: sortedContestData,
+            contestData: contestData.sort((a, b) => {
+                for (const field of sortFields) {
+                    const valueA = a[field];
+                    const valueB = b[field];
+
+                    if (field === 'participants') {
+                        // Custom sorting for the participants field (treat as string)
+                        const numericValueA = parseInt(valueA) || 0;
+                        const numericValueB = parseInt(valueB) || 0;
+
+                        if (numericValueA !== numericValueB) {
+                            return sortOrder === 'asc' ? numericValueA - numericValueB : numericValueB - numericValueA;
+                        }
+                    } else {
+                        // Default sorting for other fields
+                        if (valueA !== undefined && valueB !== undefined) {
+                            return sortOrder === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
+                        } else if (valueA !== undefined) {
+                            return sortOrder === 'asc' ? 1 : -1;
+                        } else if (valueB !== undefined) {
+                            return sortOrder === 'asc' ? -1 : 1;
+                        }
+                    }
+                }
+
+                return 0;
+            }),
         });
     } catch (err) {
         res.status(500).send({ status: false, msg: err.message });

@@ -212,9 +212,14 @@ const updateFees = async function (req, res) {
      if (!isValidBody(body) && !req.files) return res.status(400).send({ status: false, message: "Body is empty to update " })
 
 
-    let {price,noOfWinner,noOfTicket} = body
+    let {price,noOfWinner,noOfTicket,packageId} = body
 
-    
+    if (!ObjectId.isValid(feeId)) {
+      return res.status(400).send({ status: false, message: "feeId is invalid" });
+    }
+    if (!ObjectId.isValid(packageId)) {
+      return res.status(400).send({ status: false, message: "packageId is invalid" });
+    }
     if ("price" in body) {
       if (!isValid(price)) return res.status(400).send({ status: false, message: "price required" })
     }
@@ -225,7 +230,7 @@ const updateFees = async function (req, res) {
       if (!isValid(noOfTicket)) return res.status(400).send({ status: false, message: "noOfTicket required" })
     }
 
-    let result = { price,noOfWinner,noOfTicket }   
+    let result = { price,noOfWinner,noOfTicket,packageId }   
 
     let update = await feesModel.findOneAndUpdate({ _id:feeId }, result, { new: true })
 

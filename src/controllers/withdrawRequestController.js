@@ -239,13 +239,11 @@ const getWithdrawRequestData = async function (req, res) {
   
       const result = await userModel.aggregate(aggregatePipeline);
   
-      console.log('Result:', result);
-  
-      if (result.length > 0) {
-        res.status(200).send({ success: true, msg: "Withdraw Request details", data: result });
-      } else {
-        res.status(404).send({ success: true, msg: "No associated records found" });
-      }
+      res.status(200).json({
+        status: true,
+        message: 'withdrawRequestData',
+        withdrawRequestData: result,
+      });
     } catch (error) {
       res.status(400).send({ success: false, msg: error.message });
     }

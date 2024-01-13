@@ -254,8 +254,9 @@ const updateUserProfile = async function (req, res) {
     try {
         let page = req.query.page || 1;
         let pageSize = req.query.pageSize || 10;
-        let sortFields = req.query.sortFields || ['userName']; // Default sort fields is 'userName'
+        let sortFields = req.query.sortFields || ['userName']; // Default sort field is 'userName'
         let sortOrder = req.query.sortOrder || 'asc';
+        const searchKeyword = req.query.search || '';
 
         if (!Array.isArray(sortFields)) {
             sortFields = [sortFields];
@@ -263,84 +264,62 @@ const updateUserProfile = async function (req, res) {
 
         const numericFields = ['totalCoin', 'wonCoin', 'bonusCoin']; // Add other numeric fields as needed
 
+        let query = { isDeleted: false };
+
+        // Check if it's a search query
+        if (searchKeyword) {
+            const searchRegex = new RegExp(searchKeyword, 'i');
+
+            query.$or = [
+                { userName: searchRegex },
+                { email: searchRegex },
+                { mobile: searchRegex },
+                { gender: searchRegex },
+                { dateOfBirth: searchRegex },
+                { totalCoin: { $regex: searchRegex } },
+                { wonCoin: { $regex: searchRegex } },
+                { bonusCoin: { $regex: searchRegex } },
+                { status: { $regex: searchRegex } },
+                { bankStatus: { $regex: searchRegex } },
+            ];
+        }
+
         const userData = await userModel
-            .find({ isDeleted: false })
+            .find(query)
             .select({ userName: 1, email: 1, mobile: 1, gender: 1, dateOfBirth: 1, totalCoin: 1, wonCoin: 1, bonusCoin: 1, status: 1, bankStatus: 1, _id: 0 })
             .skip((page - 1) * pageSize)
             .limit(pageSize);
 
-        if (!userData || userData.length === 0) {
-            return res.status(404).send({ status: false, msg: "No userData found" });
-        }
-
-        const sortedUserData = userData.sort((a, b) => {
-            for (const field of sortFields) {
-                const valueA = a[field];
-                const valueB = b[field];
-
-                if (numericFields.includes(field)) {
-                    // Convert to numeric values for numeric fields
-                    const numericValueA = parseInt(valueA) || 0;
-                    const numericValueB = parseInt(valueB) || 0;
-                    if (numericValueA !== numericValueB) {
-                        return sortOrder === 'asc' ? numericValueA - numericValueB : numericValueB - numericValueA;
-                    }
-                } else {
-                    // Default sorting for other fields
-                    const compareResult = sortOrder === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
-                    if (compareResult !== 0) {
-                        return compareResult;
-                    }
-                }
-            }
-            return 0;
-        });
-
+        // Always return a 200 status, whether data is found or not
         return res.status(200).send({
             status: true,
             message: "userData",
-            userData: sortedUserData,
+            userData: userData.sort((a, b) => {
+                for (const field of sortFields) {
+                    const valueA = a[field];
+                    const valueB = b[field];
+
+                    if (numericFields.includes(field)) {
+                        // Convert to numeric values for numeric fields
+                        const numericValueA = parseInt(valueA) || 0;
+                        const numericValueB = parseInt(valueB) || 0;
+                        if (numericValueA !== numericValueB) {
+                            return sortOrder === 'asc' ? numericValueA - numericValueB : numericValueB - numericValueA;
+                        }
+                    } else {
+                        // Default sorting for other fields
+                        const compareResult = sortOrder === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
+                        if (compareResult !== 0) {
+                            return compareResult;
+                        }
+                    }
+                }
+                return 0;
+            }),
         });
     } catch (err) {
         res.status(500).send({ status: false, msg: err.message });
     }
-};
-
-const searchContest = async function (req, res) {
-  try {
-      let page = req.query.page || 1;
-      let pageSize = req.query.pageSize || 10;
-
-      const key = req.params.key;
-
-      const query = {
-          $or: [
-              { status: { "$regex": key, "$options": "i" } },
-              { startDate: { "$regex": key, "$options": "i" } },
-              { endDate: { "$regex": key, "$options": "i" } },
-              { participants: { "$regex": key, "$options": "i" } }
-          ]
-      };
-
-      const recordData = await contestModel.find(query)
-          .select({
-              startDate: 1,
-              endDate: 1,
-              participants: 1,
-              status: { $ifNull: ["$status", "active"] }, // If status is null or not present, set it to "active"
-              _id: 1
-          })
-          .skip((page - 1) * pageSize)
-          .limit(pageSize);
-
-      if (recordData.length > 0) {
-          res.status(200).send({ success: true, msg: "Contest Record details", data: recordData });
-      } else {
-          res.status(404).send({ success: false, msg: "Record not found" });
-      }
-  } catch (error) {
-      res.status(400).send({ success: false, msg: error.message });
-  }
 };
 
 
