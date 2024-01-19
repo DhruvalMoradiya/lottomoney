@@ -7,7 +7,7 @@ const sendNotificationSchema = new mongoose.Schema({
 
     message:{ type: String,trim: true,},
 
-    image: { type: String},
+    imageURL: {type:String,trim:true,},
 
     externalLink:{ type: String,trim: true,},
 

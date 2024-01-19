@@ -16,7 +16,7 @@ const isValidBody = function (x) {
 const addSendNotificationData = async function (req, res) {
   try {
       let body = req.body;
-      let { title, message, externalLink,} = body;
+      let { title, message, externalLink,imageURL} = body;
 
       if (!isValidBody(body)) {
           return res.status(400).send({ status: false, message: "Body cannot be blank" });
@@ -34,29 +34,12 @@ const addSendNotificationData = async function (req, res) {
           return res.status(400).send({ status: false, message: "externalLink is required" });
       }
 
-      let files = req.files;
+      if (!isValid(imageURL)) {
+        return res.status(400).send({ status: false, message: "imageURL is required" });
+    }
 
-      if (!files || files.length === 0) {
-          return res.status(400).send({ message: "No file found. Please add Image" });
-      }
-
-      if (files.length > 1) {
-          return res.status(400).send({ message: "Only one image file is allowed" });
-      }
-
-      let file = files[0];
-
-      if (!isSupportedImageFile(file)) {
-          return res.status(400).send({ status: false, message: "Only support jpg, jpeg, png file" });
-      }
-
-      let uploadedFileURL = await uploadFile(file);
-
-      let image = uploadedFileURL;
-
-      // Create new record
       let newSendNotificationData = {
-        title, message, externalLink, image
+        title, message, externalLink, imageURL
       };
 
       let sendNotificationData = await sendNotificationModel.create(newSendNotificationData);
@@ -67,18 +50,12 @@ const addSendNotificationData = async function (req, res) {
   }
 };
 
-function isSupportedImageFile(file) {
-    const supportedExtensions = ["jpg", "jpeg", "png"];
-    const fileExtension = file.originalname.split(".").pop();
-    return supportedExtensions.includes(fileExtension.toLowerCase());
-}
-
 
   const getSendNotificationData = async function (req, res) {
     try {
         const sendNotificationData = await sendNotificationModel
             .findOne({ isDeleted: false })
-            .select({ title:1, message:1, externalLink:1, image:1,_id: 0 })
+            .select({ title:1, message:1, externalLink:1, imageURL:1,_id: 0 })
             .sort({ createdAt: -1 });
 
         if (!sendNotificationData) {

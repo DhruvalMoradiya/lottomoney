@@ -14,86 +14,95 @@ const isValidBody = function (x) {
 
 
 const addBasicInfo = async function (req, res) {
-  try {
-      let body = req.body;
-      let { appName, appURL } = body;
+    try {
+        let body = req.body;
+        let { appName, appURL, logoURL, faviconURL } = body;
 
-      if (!isValidBody(body)) {
-          return res.status(400).send({ status: false, message: "Body cannot be blank" });
-      }
+        if (!isValidBody(body)) {
+            return res.status(400).send({ status: false, message: "Body cannot be blank" });
+        }
 
-      if (!isValid(appName)) {
-          return res.status(400).send({ status: false, message: "appName is required" });
-      }
+        if (!isValid(appName)) {
+            return res.status(400).send({ status: false, message: "appName is required" });
+        }
 
-      if (!isValid(appURL)) {
-          return res.status(400).send({ status: false, message: "appURL is required" });
-      }
+        if (!isValid(appURL)) {
+            return res.status(400).send({ status: false, message: "appURL is required" });
+        }
 
-      let files = req.files;
-      let logo = [];
-      let favicon = [];
+        // Validate logoURL and faviconURL if needed
 
-      if (files) {
-          for (let i = 0; i < files.length; i++) {
-              let file = files[i];
+        // Check if a record already exists
+        let existingRecord = await basicInfoModel.findOne({ appName });
 
-              if (isSupportedImageFile(file)) {
-                  if (file.fieldname === "logo") {
-                      let uploadedFileURL = await uploadFile(file);
-                      logo.push(uploadedFileURL);
-                  } else if (file.fieldname === "favicon") {
-                      let uploadedFileURL = await uploadFile(file);
-                      favicon.push(uploadedFileURL);
-                  }
-              } else {
-                  return res.status(400).send({ status: false, message: "Unsupported file type" });
-              }
-          }
-      }
+        if (existingRecord) {
+            // Update existing record
+            existingRecord.appURL = appURL;
+            existingRecord.logoURL = logoURL;  // Assuming logoURL is a string
+            existingRecord.faviconURL = faviconURL;  // Assuming faviconURL is a string
+            await existingRecord.save();
 
-      // Check if a record already exists
-      let existingRecord = await basicInfoModel.findOne({ appName });
+            // Sending the existingRecord object directly in the response
+            return res.status(200).send({ status: true, message: "basicInfo updated successfully", basicInfoData: existingRecord });
+        } else {
+            // Create new record
+            let newBasicInfoData = {
+                appName,
+                appURL,
+                logoURL,  // Assuming logoURL is a string
+                faviconURL,  // Assuming faviconURL is a string
+            };
 
-      if (existingRecord) {
-          // Update existing record
-          existingRecord.appURL = appURL;
-          existingRecord.logo = logo;
-          existingRecord.favicon = favicon;
-          await existingRecord.save();
-          return res.status(200).send({ status: true, message: "basicInfo updated successfully", basicInfoData: existingRecord });
-      } else {
-          // Create new record
-          let newBasicInfoData = {
-              appName,
-              appURL,
-              logo,
-              favicon,
-          };
+            let basicInfoData = await basicInfoModel.create(newBasicInfoData);
 
-          let basicInfoData = await basicInfoModel.create(newBasicInfoData);
-          return res.status(201).send({ status: true, message: "basicInfo added successfully", basicInfoData });
-      }
-  } catch (error) {
-      console.log(error);
-      return res.status(500).send({ message: "Server-side Errors. Please try again later", error: error.message });
-  }
+            // Sending the basicInfoData object directly in the response
+            return res.status(201).send({ status: true, message: "basicInfo added successfully", basicInfoData });
+        }
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({ message: "Server-side Errors. Please try again later", error: error.message });
+    }
+};
+  
+const addFile = async function (req, res) {
+    try {
+        let files = req.files;
+
+        if (files.length !== 1) {
+            return res.status(400).send({ message: "Exactly one image file is required" });
+        }
+
+        let file = files[0];
+
+        if (!isSupportedImageFile(file)) {
+            return res.status(400).send({ status: false, message: "Only support jpg, jpeg, png file" });
+        }
+
+        let uploadedFileURL = await uploadFile(file, 'logos');
+
+        return res.status(200).send({
+            status: true,
+            url: uploadedFileURL,
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500).send({ message: "Server-side Errors. Please try again later", error: error.message });
+    }
 };
 
-
-  function isSupportedImageFile(file) {
+function isSupportedImageFile(file) {
     const supportedExtensions = ["jpg", "jpeg", "png"];
     const fileExtension = file.originalname.split(".").pop();
     return supportedExtensions.includes(fileExtension.toLowerCase());
-  }
-  
+}
+ 
 
 
   const getBasicInfo = async function (req, res) {
     try {
         const basicInfoData = await basicInfoModel
             .findOne({ isDeleted: false })
-            .select({ appName: 1, logo: 1, favicon: 1, appURL: 1, _id: 0 })
+            .select({ appName: 1, logoURL: 1, faviconURL: 1, appURL: 1, _id: 0 })
             .sort({ createdAt: -1 });
 
         if (!basicInfoData) {
@@ -102,8 +111,8 @@ const addBasicInfo = async function (req, res) {
 
         const transBasicInfo = {
             appName: basicInfoData.appName,
-            logo: basicInfoData.logo.length > 0 ? basicInfoData.favicon[0] : null,
-            favicon: basicInfoData.favicon.length > 0 ? basicInfoData.favicon[0] : null,
+            logoURL: basicInfoData.logoURL,
+            faviconURL: basicInfoData.faviconURL,
             appURL: basicInfoData.appURL
         };
 
@@ -117,4 +126,4 @@ const addBasicInfo = async function (req, res) {
     }
 };
 
-  module.exports = {addBasicInfo,getBasicInfo}
+  module.exports = {addBasicInfo,addFile,getBasicInfo}

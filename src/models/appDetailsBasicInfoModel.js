@@ -5,9 +5,9 @@ const appDetailsBasicInfoSchema = new mongoose.Schema({
 
     appName: { type: String,trim: true,},
 
-    logo: [],
+    logoURL:{ type: String,trim: true,},
 
-    favicon: [],
+    faviconURL:{ type: String,trim: true,},
 
     appURL:{ type: String,trim: true,},
 

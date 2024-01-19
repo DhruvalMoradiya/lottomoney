@@ -8,7 +8,7 @@ const { addPackageList,getPackage,packageDelete,updatePackage} = require("../con
 const { feesAdd,getFees,updateFees,feesDelete } = require("../controllers/masterFeesController")
 const { addAboutUs,getAboutUs } = require("../controllers/configurationAboutController")
 const { addContactUs,getContactUs } = require("../controllers/configurationContactController")
-const { addBasicInfo,getBasicInfo } = require("../controllers/appDetailsBasicInfoController")
+const { addBasicInfo,addFile,getBasicInfo } = require("../controllers/appDetailsBasicInfoController")
 const { addNotification,getNotification } = require("../controllers/appDetailsNotificationController")
 const { addWalletData,getWalletData } = require("../controllers/appDetailsWalletController")
 const { addOtherData, getOtherData } = require("../controllers/appDetailsOtherController")
@@ -38,6 +38,10 @@ router.post("/register-admin",createAdminUser)
 router.post("/login-admin", adminUserLogin)
 router.put("/admin/:adminId/profile",authenticationAdmin,autherizationAdmin,updateAdminProfile)
 router.put("/admin/:adminId/resetpassword",authenticationAdmin,autherizationAdmin,adminChangePassword)
+
+//File uplod//
+
+router.post("/file",authenticationAdmin,addFile)
 
  router.post("/packagenameadd",authenticationAdmin,addPackageList)
  router.get("/packagenameget",authenticationAdmin,getPackage)
