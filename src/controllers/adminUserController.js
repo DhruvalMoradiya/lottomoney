@@ -206,30 +206,31 @@ const updateAdminProfile = async function (req, res) {
       if ("avatarURL" in body) {
         if (!isValid(avatarURL)) return res.status(400).send({ status: false, message: "Enter a valid avatarURL" })
       }
-      let unique= []
-        if("email" in body) {
-        if (!isValid(email)) return res.status(400).send({ status: false, message: "Enter a valid email id" })
-        if (!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i.test(email)) return res.status(400).send({ status: false, message: "Enter email in correct format" })
-        unique.push({ email: email })
-      }
+      // let unique= []
+      //   if("email" in body) {
+      //   if (!isValid(email)) return res.status(400).send({ status: false, message: "Enter a valid email id" })
+      //   if (!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i.test(email)) return res.status(400).send({ status: false, message: "Enter email in correct format" })
+      //   unique.push({ email: email })
+      // }
   
-      if ("phone" in body) {
-        if (!isValid(phone)) return res.status(400).send({ status: false, message: "Enter a valid phone number" })
-        if (!/^(\+91)?0?[6-9]\d{9}$/.test(phone)) return res.status(400).send({ status: false, message: "Enter Indian valid phone number" })
-        unique.push({ phone: phone })
-      }
+      // if ("phone" in body) {
+      //   if (!isValid(phone)) return res.status(400).send({ status: false, message: "Enter a valid phone number" })
+      //   if (!/^(\+91)?0?[6-9]\d{9}$/.test(phone)) return res.status(400).send({ status: false, message: "Enter Indian valid phone number" })
+      //   unique.push({ phone: phone })
+      // }
   
-      if(unique.length>0){
-      let userDetails = await adminModel.findOne({ $or: unique })
+      // if(unique.length>0){
+      // let userDetails = await adminModel.findOne({ $or: unique })
   
-      if (userDetails) {
-        if (userDetails.email == email) {
-          return res.status(400).send({ status: false, message: `${email} email  already exist` })
-        } else {
-          return res.status(400).send({ status: false, message: `${phone} phone already exist` })
-        }
-      }
-    }
+    //   if (userDetails) {
+    //     if (userDetails.email == email) {
+    //       return res.status(400).send({ status: false, message: `${email} email  already exist` })
+    //     } else {
+    //       return res.status(400).send({ status: false, message: `${phone} phone already exist` })
+    //     }
+    //   }
+    // }
+    
       let result = { firstName, lastName, userName, userDesignation, email, phone ,avatarURL}   
   
       let update = await adminModel.findOneAndUpdate({ _id:admin }, result, { new: true })
