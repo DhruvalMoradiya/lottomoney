@@ -52,7 +52,7 @@ router.post("/file",authenticationAdmin,addFile)
  router.get("/feesdetailsget",authenticationAdmin,getFees)
   //?page=1&pageSize=10&search=g&sortField=packageName&sortOrder=asc
  router.delete("/fees/:feeId",authenticationAdmin,feesDelete)
- router.put("/fees",authenticationAdmin,updateFees)
+ router.put("/feesupdate/:feeId",authenticationAdmin,updateFees)
  
  router.post("/aboutusadd",authenticationAdmin,addAboutUs)
  router.get("/aboutusget",authenticationAdmin,getAboutUs)
