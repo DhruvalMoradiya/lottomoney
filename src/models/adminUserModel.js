@@ -15,7 +15,7 @@ const adminSchema = new mongoose.Schema({
 
     phone: { type: String,trim: true,},
 
-    avatar: { type: String},
+    avatarURL: { type: String,trim: true,},
 
     userDesignation:{type:String,trim: true,},
 
