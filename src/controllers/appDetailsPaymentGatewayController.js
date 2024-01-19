@@ -39,7 +39,7 @@ const getModeofPaymentDetail = async function (req, res) {
   try {
       const modeofPaymentDetail = await modeofPaymentModel
           .find({ isDeleted: false })
-          .select({ modeofPayment: 1, _id: 0 })
+          .select({ modeofPayment: 1, _id: 1 })
           .sort({ createdAt: -1 });
 
 

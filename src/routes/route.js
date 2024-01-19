@@ -19,9 +19,7 @@ const { addContestData,getContestData,searchContest,updateContest,contestDelete}
 const {addDummyUserData,getDummyUserData,searchDummyUser,updateDummyUser,dummyUserDelete} = require("../controllers/dummyUserController")
 const {addSendNotificationData,getSendNotificationData} = require("../controllers/sendNotificationController")
 const {addModeofPayment,getModeofPaymentDetail} = require("../controllers/appDetailsPaymentGatewayController")
-const {addRazorPay,getRazorPay} = require("../controllers/paymentGatewayRazorPayController")
-const {addPaytmData,getPaytmData} = require("../controllers/paymentGatewayPaytmController")
-const {addUpi,getUpi} = require("../controllers/paymentGatewayUpiController")
+const {addPaymentData,getPaymentData} = require("../controllers/paymentGatewayAllController")
 const {addWithdrawRequestData,getWithdrawRequestData} = require("../controllers/withdrawRequestController")
 
 router.post("/register",createUser)
@@ -74,14 +72,8 @@ router.post("/file",authenticationAdmin,addFile)
  router.post("/modeofpaymentadd",authenticationAdmin,addModeofPayment)
  router.get("/modeofpaymentget",authenticationAdmin,getModeofPaymentDetail)
 
- router.post("/razorpayadd",authenticationAdmin,addRazorPay)
- router.get("/razorpayget",authenticationAdmin,getRazorPay)
-
- router.post("/paytmadd",authenticationAdmin,addPaytmData)
- router.get("/paytmget",authenticationAdmin,getPaytmData)
-
- router.post("/upiadd",authenticationAdmin,addUpi)
- router.get("/upiget",authenticationAdmin,getUpi)
+ router.post("/paymentadd",authenticationAdmin,addPaymentData)
+ router.get("/paymentget",authenticationAdmin,getPaymentData)
 
  router.post("/otherdataadd",authenticationAdmin,addOtherData)
  router.get("/otherdataget",authenticationAdmin,getOtherData)
