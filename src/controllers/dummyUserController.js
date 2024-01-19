@@ -77,33 +77,29 @@ const getDummyUserData = async function (req, res) {
             .skip((page - 1) * pageSize)
             .limit(pageSize);
 
-        if (!dummyUserData || dummyUserData.length === 0) {
-            return res.status(404).send({ status: false, msg: "No DummyUser Data found" });
-        }
-
-        const sortedDummyUserData = dummyUserData.sort((a, b) => {
-            for (const field of sortFields) {
-                const valueA = a[field];
-                const valueB = b[field];
-
-                // Default sorting for non-numeric fields
-                const compareResult = sortOrder === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
-                if (compareResult !== 0) {
-                    return compareResult;
-                }
-            }
-            return 0;
-        });
-
+        // Always return a 200 status, whether data is found or not
         return res.status(200).send({
             status: true,
             message: "DummyUser",
-            dummyUserData: sortedDummyUserData,
+            dummyUserData: dummyUserData.sort((a, b) => {
+                for (const field of sortFields) {
+                    const valueA = a[field];
+                    const valueB = b[field];
+
+                    // Default sorting for non-numeric fields
+                    const compareResult = sortOrder === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
+                    if (compareResult !== 0) {
+                        return compareResult;
+                    }
+                }
+                return 0;
+            }),
         });
     } catch (err) {
         res.status(500).send({ status: false, msg: err.message });
     }
 };
+
 
 const searchDummyUser = async function (req, res) {
     try {
