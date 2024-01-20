@@ -322,5 +322,16 @@ const updateUserProfile = async function (req, res) {
     }
 };
 
+const countTotalusers = async function (req, res) {
+  try {
+      const totalUserCount = await userModel.countDocuments();
 
-module.exports = {createUser, userLogin, forgotPassword, forgotPasswordEnterOldPassword, updateUserProfile,getUserData}
+      res.json({ success: true, message: 'Total User', count: totalUserCount });
+  } catch (error) {
+      console.error('Error counting contests:', error);
+      res.status(500).json({ success: false, message: 'Internal Server Error', error: error.message });
+  }
+};
+
+
+module.exports = {createUser, userLogin, forgotPassword, forgotPasswordEnterOldPassword, updateUserProfile,getUserData,countTotalusers}

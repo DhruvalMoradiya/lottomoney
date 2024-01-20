@@ -164,4 +164,15 @@ const packageDelete = async function (req, res) {
     }
 };
 
-module.exports = {addPackageList,getPackage,packageDelete,updatePackage}
+const countContesttype = async function (req, res) {
+    try {
+        const totalContesttype = await packagesModel.countDocuments();
+
+        res.json({ success: true, message: 'Contest type ', count: totalContesttype });
+    } catch (error) {
+        console.error('Error counting contests:', error);
+        res.status(500).json({ success: false, message: 'Internal Server Error', error: error.message });
+    }
+};
+
+module.exports = {addPackageList,getPackage,packageDelete,updatePackage,countContesttype}
