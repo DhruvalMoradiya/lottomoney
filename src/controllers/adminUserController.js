@@ -74,7 +74,8 @@ const adminUserLogin = async function (req, res) {
     }
 
     // Check if user is present or not
-    let user = await adminModel.findOne({userName});
+    let user = await adminModel.findOne({ userName });
+
     if (!user) {
       return res
         .status(400)
@@ -83,7 +84,10 @@ const adminUserLogin = async function (req, res) {
 
     let passwordMatch = bcrypt.compareSync(password, user.password);
 
-    if (passwordMatch === false) return res.status(401).send({status: false, message: "Password is not correct"});
+    if (passwordMatch === false)
+      return res
+        .status(401)
+        .send({ status: false, message: "Password is not correct" });
 
     const token = jwt.sign(
       {
@@ -95,13 +99,33 @@ const adminUserLogin = async function (req, res) {
       }
     );
 
-    const { _id } = user;
+    const {
+      _id,
+      firstName,
+      lastName,
+      mobile,
+      email,
+      phone,
+      avatarURL,
+      userDesignation,
+    } = user;
 
     res.setHeader("x-api-key", token);
     res.status(200).send({
       status: true,
       message: "You are logged in",
-      data: { token,adminId:_id },
+      data: {
+        token,
+        adminId: _id,
+        firstName,
+        lastName,
+        mobile,
+        userName: user.userName,
+        email,
+        phone,
+        avatarURL,
+        userDesignation,
+      },
     });
   } catch (err) {
     res.status(500).send({ status: false, message: err.message });
@@ -160,14 +184,7 @@ const updateAdminProfile = async function (req, res) {
        if (!isValidBody(body) && !req.files) return res.status(400).send({ status: false, message: "Body is empty to update " })
   
   
-      let { firstName, lastName, userName, userDesignation, email, phone} = body
-  
-      let files = req.files
-      let avatar;
-      if (files && files.length > 0) {
-        var uploadedFileURL = await uploadFile(files[0])
-        avatar = uploadedFileURL
-      }
+      let { firstName, lastName, userName, userDesignation, email, phone,avatarURL} = body
   
       
       if ("firstName" in body) {
@@ -186,31 +203,35 @@ const updateAdminProfile = async function (req, res) {
         if (!isValid(userDesignation)) return res.status(400).send({ status: false, message: "Enter a valid userDesignation" })
       }
 
-      let unique= []
-        if("email" in body) {
-        if (!isValid(email)) return res.status(400).send({ status: false, message: "Enter a valid email id" })
-        if (!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i.test(email)) return res.status(400).send({ status: false, message: "Enter email in correct format" })
-        unique.push({ email: email })
+      if ("avatarURL" in body) {
+        if (!isValid(avatarURL)) return res.status(400).send({ status: false, message: "Enter a valid avatarURL" })
       }
+      // let unique= []
+      //   if("email" in body) {
+      //   if (!isValid(email)) return res.status(400).send({ status: false, message: "Enter a valid email id" })
+      //   if (!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i.test(email)) return res.status(400).send({ status: false, message: "Enter email in correct format" })
+      //   unique.push({ email: email })
+      // }
   
-      if ("phone" in body) {
-        if (!isValid(phone)) return res.status(400).send({ status: false, message: "Enter a valid phone number" })
-        if (!/^(\+91)?0?[6-9]\d{9}$/.test(phone)) return res.status(400).send({ status: false, message: "Enter Indian valid phone number" })
-        unique.push({ phone: phone })
-      }
+      // if ("phone" in body) {
+      //   if (!isValid(phone)) return res.status(400).send({ status: false, message: "Enter a valid phone number" })
+      //   if (!/^(\+91)?0?[6-9]\d{9}$/.test(phone)) return res.status(400).send({ status: false, message: "Enter Indian valid phone number" })
+      //   unique.push({ phone: phone })
+      // }
   
-      if(unique.length>0){
-      let userDetails = await adminModel.findOne({ $or: unique })
+      // if(unique.length>0){
+      // let userDetails = await adminModel.findOne({ $or: unique })
   
-      if (userDetails) {
-        if (userDetails.email == email) {
-          return res.status(400).send({ status: false, message: `${email} email  already exist` })
-        } else {
-          return res.status(400).send({ status: false, message: `${phone} phone already exist` })
-        }
-      }
-    }
-      let result = { firstName, lastName, userName, userDesignation, email, phone ,avatar}   
+    //   if (userDetails) {
+    //     if (userDetails.email == email) {
+    //       return res.status(400).send({ status: false, message: `${email} email  already exist` })
+    //     } else {
+    //       return res.status(400).send({ status: false, message: `${phone} phone already exist` })
+    //     }
+    //   }
+    // }
+    
+      let result = { firstName, lastName, userName, userDesignation, email, phone ,avatarURL}   
   
       let update = await adminModel.findOneAndUpdate({ _id:admin }, result, { new: true })
   
