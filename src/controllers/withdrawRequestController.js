@@ -249,4 +249,31 @@ const getWithdrawRequestData = async function (req, res) {
     }
   };
 
-  module.exports = {addWithdrawRequestData,getWithdrawRequestData}
+  const  countSuccessFullyWithdraw = async function (req, res) {
+    try {
+        // Use a case-insensitive regular expression for 'upcoming'
+        const successFullyWithdrawCount = await withdrawRequestModel.countDocuments({
+            status: { $regex: new RegExp('approved', 'i') }
+        });
+
+        res.json({ success: true, message: 'Count successFullyWithdraw', count: successFullyWithdrawCount });
+    } catch (error) {
+        console.error('Error counting upcoming contests:', error);
+        res.status(500).json({ success: false, message: 'Internal Server Error', error: error.message });
+    }
+};
+
+const  countWithdrawRejected = async function (req, res) {
+  try {
+      // Use a case-insensitive regular expression for 'upcoming'
+      const withdrawRejected = await withdrawRequestModel.countDocuments({
+          status: { $regex: new RegExp('rejected', 'i') }
+      });
+
+      res.json({ success: true, message: 'Count successFullyWithdraw', count: withdrawRejected });
+  } catch (error) {
+      console.error('Error counting upcoming contests:', error);
+      res.status(500).json({ success: false, message: 'Internal Server Error', error: error.message });
+  }
+};
+  module.exports = {addWithdrawRequestData,getWithdrawRequestData,countSuccessFullyWithdraw,countWithdrawRejected}

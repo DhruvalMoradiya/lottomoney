@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 
-const {createUser, userLogin, forgotPassword,forgotPasswordEnterOldPassword,updateUserProfile,getUserData} = require("../controllers/userController")
+const {createUser, userLogin, forgotPassword,forgotPasswordEnterOldPassword,updateUserProfile,getUserData,countTotalusers} = require("../controllers/userController")
 const {createAdminUser, adminUserLogin, adminChangePassword, updateAdminProfile} = require("../controllers/adminUserController")
 const {authentication ,autherization,authenticationAdmin,autherizationAdmin}= require('../middleware/auth')
-const { addPackageList,getPackage,packageDelete,updatePackage} = require("../controllers/masterPackagesController")
+const { addPackageList,getPackage,packageDelete,updatePackage,countContesttype} = require("../controllers/masterPackagesController")
 const { feesAdd,getFees,updateFees,feesDelete } = require("../controllers/masterFeesController")
 const { addAboutUs,getAboutUs } = require("../controllers/configurationAboutController")
 const { addContactUs,getContactUs } = require("../controllers/configurationContactController")
@@ -15,12 +15,13 @@ const { addOtherData, getOtherData } = require("../controllers/appDetailsOtherCo
 const { addAppUpdateData,getAppUpdateData } = require("../controllers/appUpdateController")
 const { addPrivacyPolicy,getPrivacyPolicy } = require("../controllers/configurationPrivacyPolicyController")
 const { addTermsAndCondition,getTermsAndCondition } = require("../controllers/configurationTermsAndConditionsController")
-const { addContestData,getContestData,searchContest,updateContest,contestDelete} = require("../controllers/contestController")
+const { addContestData,getContestData,searchContest,updateContest,contestDelete,countUpcomingContests,countLiveContests,
+        countFinishedContests,countResultAnnouncedContests,countTotalContests} = require("../controllers/contestController")
 const {addDummyUserData,getDummyUserData,searchDummyUser,updateDummyUser,dummyUserDelete} = require("../controllers/dummyUserController")
 const {addSendNotificationData,getSendNotificationData} = require("../controllers/sendNotificationController")
 const {addModeofPayment,getModeofPaymentDetail} = require("../controllers/appDetailsPaymentGatewayController")
 const {addPaymentData,getPaymentData} = require("../controllers/paymentGatewayAllController")
-const {addWithdrawRequestData,getWithdrawRequestData} = require("../controllers/withdrawRequestController")
+const {addWithdrawRequestData,getWithdrawRequestData,countSuccessFullyWithdraw,countWithdrawRejected} = require("../controllers/withdrawRequestController")
 
 router.post("/register",createUser)
 router.post("/login", userLogin)
@@ -92,13 +93,22 @@ router.post("/file",authenticationAdmin,addFile)
  router.get("/searchcontest",authenticationAdmin,searchContest)
  router.put("/contestupdate/:contestId",authenticationAdmin,updateContest)
  router.delete("/contestdatadelete/:contestId",authenticationAdmin,contestDelete)
-
+ router.get("/contestupcoming",authenticationAdmin,countUpcomingContests)
+ router.get("/contestlive",authenticationAdmin,countLiveContests)
+ router.get("/contestfinished",authenticationAdmin,countFinishedContests)
+ router.get("/contestresultannounced",authenticationAdmin,countResultAnnouncedContests)
+ router.get("/totalcontest",authenticationAdmin,countTotalContests)
+ router.get("/contesttype",authenticationAdmin,countContesttype)
+ router.get("/counttotaluser",authenticationAdmin,countTotalusers)
+ router.get("/countsuccessfullywithdraw",authenticationAdmin,countSuccessFullyWithdraw)
+ router.get("/countwithdrawrejected",authenticationAdmin,countWithdrawRejected)
 
  router.post("/dummyuseradd",authenticationAdmin,addDummyUserData)
  router.get("/dummyuserget",authenticationAdmin,getDummyUserData)
  router.get("/searchdummyuser/:key",authenticationAdmin,searchDummyUser)
  router.put("/dummyuserupdate/:userId",authenticationAdmin,updateDummyUser)
  router.delete("/dummyuserdelete/:userId",authenticationAdmin,dummyUserDelete)
+ 
 
  router.post("/sendwithdrawrequest",authentication,addWithdrawRequestData)
  router.get("/withdrawrequest",authenticationAdmin,getWithdrawRequestData)
