@@ -35,7 +35,7 @@ const getPaymentData = async function (req, res) {
   try {
       const paytmDetail = await paymentModel
           .findOne({ isDeleted: false })
-          .select({razorPayAPIKey:1,paytmMerchantID:1,paytmMerchantKey:1,upiID:1,upiMerchantCode:1,upiTransactionNote:1,upiPayeeName:1,upiToken:1, _id: 0 })
+          .select({modeofPaymentId:1,razorPayAPIKey:1,paytmMerchantID:1,paytmMerchantKey:1,upiID:1,upiMerchantCode:1,upiTransactionNote:1,upiPayeeName:1,upiToken:1, _id: 0 })
           .sort({ createdAt: -1 });
 
 
