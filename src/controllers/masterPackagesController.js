@@ -53,6 +53,9 @@ const getPackage = async function (req, res) {
             ]
         };
 
+        // Count total documents matching the query
+        const totalDocuments = await packagesModel.countDocuments(query);
+
         const packageDetail = await packagesModel
             .find(query)
             .select({
@@ -77,6 +80,7 @@ const getPackage = async function (req, res) {
         return res.status(200).json({
             status: true,
             message: "packageName",
+            totalDocuments: totalDocuments,
             package: packageData,
         });
     } catch (err) {

@@ -71,6 +71,8 @@ const getDummyUserData = async function (req, res) {
             ]
         };
 
+        const dummyUserCount = await dummyUserModel.countDocuments(query); // Count the documents
+
         const dummyUserData = await dummyUserModel
             .find(query)
             .select({ firstName: 1, lastName: 1, userName: 1, _id: 1 })
@@ -81,6 +83,7 @@ const getDummyUserData = async function (req, res) {
         return res.status(200).send({
             status: true,
             message: "DummyUser",
+            count: dummyUserCount, // Include the count in the response
             dummyUserData: dummyUserData.sort((a, b) => {
                 for (const field of sortFields) {
                     const valueA = a[field];

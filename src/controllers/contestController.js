@@ -1,4 +1,7 @@
 const contestModel = require("../models/contestModel");
+const packagesModel = require("../models/masterPackagesModel");
+const userModel = require("../models/userModel")
+const withdrawRequestModel = require("../models/withdrawRequestModel");
 const {uploadFile} = require("../aws/fileUpload");
 const ObjectId = require("mongoose").Types.ObjectId;
 const mongoose = require("mongoose");
@@ -64,12 +67,14 @@ const getContestData = async function (req, res) {
             const key = req.query.search;
 
             query.$or = [
-                { status: { "$regex": key, "$options": "i" } },
-                { startDate: { "$regex": key, "$options": "i" } },
-                { endDate: { "$regex": key, "$options": "i" } },
-                { participants: { "$regex": key, "$options": "i" } }
+                { status: { "$regex": new RegExp(key, "i") } },
+                { startDate: { "$regex": new RegExp(key, "i") } },
+                { endDate: { "$regex": new RegExp(key, "i") } },
+                { participants: { "$regex": new RegExp(key, "i") } }
             ];
         }
+
+        const contestCount = await contestModel.countDocuments(query); // Count the documents
 
         const contestData = await contestModel
             .find(query)
@@ -81,6 +86,7 @@ const getContestData = async function (req, res) {
         return res.status(200).send({
             status: true,
             message: "contestData",
+            count: contestCount, // Include the count in the response
             contestData: contestData.sort((a, b) => {
                 for (const field of sortFields) {
                     const valueA = a[field];
@@ -180,72 +186,45 @@ const contestDelete = async function (req, res) {
 };
 
 
-const countUpcomingContests = async function (req, res) {
+const countAllContests = async function (req, res) {
     try {
-        // Use a case-insensitive regular expression for 'upcoming'
         const upcomingContestsCount = await contestModel.countDocuments({
             status: { $regex: new RegExp('upcoming', 'i') }
         });
 
-        res.json({ success: true, message: 'Count Upcoming', count: upcomingContestsCount });
-    } catch (error) {
-        console.error('Error counting upcoming contests:', error);
-        res.status(500).json({ success: false, message: 'Internal Server Error', error: error.message });
-    }
-};
-
-const countLiveContests = async function (req, res) {
-    try {
-        // Use a case-insensitive regular expression for 'upcoming'
         const liveContestsCount = await contestModel.countDocuments({
             status: { $regex: new RegExp('live', 'i') }
         });
 
-        res.json({ success: true, message: 'Count Live', count: liveContestsCount });
-    } catch (error) {
-        console.error('Error counting upcoming contests:', error);
-        res.status(500).json({ success: false, message: 'Internal Server Error', error: error.message });
-    }
-};
-
-const countFinishedContests = async function (req, res) {
-    try {
-        // Use a case-insensitive regular expression for 'upcoming'
         const finishedContestsCount = await contestModel.countDocuments({
             status: { $regex: new RegExp('finished', 'i') }
         });
 
-        res.json({ success: true, message: 'Count Finished', count: finishedContestsCount });
-    } catch (error) {
-        console.error('Error counting upcoming contests:', error);
-        res.status(500).json({ success: false, message: 'Internal Server Error', error: error.message });
-    }
-};
-
-const  countResultAnnouncedContests = async function (req, res) {
-    try {
-        // Use a case-insensitive regular expression for 'upcoming'
         const resultAnnouncedContestsCount = await contestModel.countDocuments({
             status: { $regex: new RegExp('resultannounced', 'i') }
         });
 
-        res.json({ success: true, message: 'Count resultAnnounced', count: resultAnnouncedContestsCount });
-    } catch (error) {
-        console.error('Error counting upcoming contests:', error);
-        res.status(500).json({ success: false, message: 'Internal Server Error', error: error.message });
-    }
-};
-
-const countTotalContests = async function (req, res) {
-    try {
         const totalContestsCount = await contestModel.countDocuments();
+        
+        const totalContesttype = await packagesModel.countDocuments();
 
-        res.json({ success: true, message: 'total Count ', count: totalContestsCount });
+        const response = {
+            success: true,
+            message: 'Counts',
+            upcomingContestsCount: upcomingContestsCount,
+            liveContestsCount: liveContestsCount,
+            finishedContestsCount: finishedContestsCount,
+            resultAnnouncedContestsCount: resultAnnouncedContestsCount,
+            totalContestsCount: totalContestsCount,
+            totalContesttype: totalContesttype,
+        };
+
+        res.json(response);
     } catch (error) {
-        console.error('Error counting contests:', error);
+        console.error('Error counting data:', error);
         res.status(500).json({ success: false, message: 'Internal Server Error', error: error.message });
     }
 };
 
-  module.exports = {addContestData,getContestData,searchContest,updateContest,contestDelete,countUpcomingContests,countLiveContests,
-                    countFinishedContests,countResultAnnouncedContests,countTotalContests}
+
+  module.exports = {addContestData,getContestData,searchContest,updateContest,contestDelete,countAllContests}
