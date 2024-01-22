@@ -56,6 +56,7 @@ const getPackage = async function (req, res) {
         // Count total documents matching the query
         const totalDocuments = await packagesModel.countDocuments(query);
 
+        // Find packages based on the query
         const packageDetail = await packagesModel
             .find(query)
             .select({
@@ -67,8 +68,15 @@ const getPackage = async function (req, res) {
             .limit(pageSize)
             .exec();
 
+        // Check if no packages are found
         if (packageDetail.length === 0) {
-            return res.status(404).send({ status: false, msg: "No package found" });
+            // Return a 200 status with an empty array
+            return res.status(200).json({
+                status: true,
+                message: "packageName",
+                totalDocuments: totalDocuments,
+                package: [],
+            });
         }
 
         // Map the array of packageDetail to include both packageName and packageId

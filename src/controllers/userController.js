@@ -284,6 +284,9 @@ const updateUserProfile = async function (req, res) {
             ];
         }
 
+        // Count total documents matching the query
+        const totalDocuments = await userModel.countDocuments(query);
+
         const userData = await userModel
             .find(query)
             .select({ userName: 1, email: 1, mobile: 1, gender: 1, dateOfBirth: 1, totalCoin: 1, wonCoin: 1, bonusCoin: 1, status: 1, bankStatus: 1, _id: 0 })
@@ -294,6 +297,7 @@ const updateUserProfile = async function (req, res) {
         return res.status(200).send({
             status: true,
             message: "userData",
+            count: totalDocuments,
             userData: userData.sort((a, b) => {
                 for (const field of sortFields) {
                     const valueA = a[field];
