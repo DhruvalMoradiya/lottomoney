@@ -88,38 +88,6 @@ const getPackage = async function (req, res) {
     }
 };
 
-// const searchPackage = async function (req, res) {
-//     try {
-//         let page = req.query.page || 1;
-//         let pageSize = req.query.pageSize || 10;
-//         const searchKeyword = req.query.search;
-//         const keywordRegex = new RegExp(searchKeyword, 'i');
-
-//         const recordData = await packagesModel.find({
-//             $or: [
-//                 { packageName: { $regex: keywordRegex } }
-//             ]
-//         }).select({
-//             packageName: 1,
-//             _id: 1
-//         }).skip((page - 1) * pageSize)
-//         .limit(pageSize)
-
-//         if (recordData.length > 0) {
-//             const filteredData = recordData.map(package => ({
-//                 packageId: package._id,
-//                 packageName: package.packageName,
-//             }));
-
-//             res.status(200).send({ success: true, msg: "package Record details", data: filteredData });
-//         } else {
-//             res.status(404).send({ success: true, msg: "Record not found" });
-//         }
-//     } catch (error) {
-//         res.status(400).send({ success: false, msg: error.message });
-//     }
-// };
-
 const updatePackage = async function (req, res) {
     try {
       let body = req.body

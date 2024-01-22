@@ -59,69 +59,6 @@ const feesAdd = async function (req, res) {
     }
   };
 
-//   const getFees = async function (req, res) {
-//     try {
-//         let page = req.query.page || 1;
-//         let pageSize = req.query.pageSize || 10;
-//         let sortOrder = req.query.sortOrder || 'asc';
-
-//         const sortField = req.query.sortField || 'packageName';
-
-//         const fees = await feesModel
-//             .find({ isDeleted: false })
-//             .select({ price: 1, noOfWinner: 1, noOfTicket: 1, packageId: 1, _id: 1 })
-//             .skip((page - 1) * pageSize)
-//             .limit(pageSize);
-
-//         if (fees.length === 0) {
-//             return res.status(404).send({ status: false, msg: "No data found" });
-//         }
-
-//         const transformedFees = await Promise.all(fees.map(async (fee) => {
-//             let packageName = "Unknown Package";
-
-//             if (fee.packageId) {
-//                 const packageDetail = await packagesModel.findOne({ _id: fee.packageId, isDeleted: false });
-//                 packageName = packageDetail ? packageDetail.packageName : "Unknown Package";
-//             }
-
-//             return {
-//                 feeId: fee._id,
-//                 packageName,
-//                 price: fee.price,
-//                 noOfWinner: fee.noOfWinner,
-//                 noOfTicket: fee.noOfTicket,
-//             };
-//         }));
-
-//       const numericFields = ['price', 'noOfWinner', 'noOfTicket'];
-
-//         transformedFees.forEach((fee) => {
-//         numericFields.forEach((field) => {
-//         fee[field] = parseInt(fee[field]);
-//           });
-//        });
-//         // Sorting the transformedFees array based on the specified field and sortOrder
-//         transformedFees.sort((a, b) => {
-//           if (a[sortField] < b[sortField]) {
-//               return sortOrder === 'asc' ? -1 : 1;
-//           }
-//           if (a[sortField] > b[sortField]) {
-//               return sortOrder === 'asc' ? 1 : -1;
-//           }
-//           return 0;
-//       });
-
-//         return res.status(200).send({
-//             status: true,
-//             message: "feesData",
-//             feesList: transformedFees,
-//         });
-//     } catch (err) {
-//         res.status(500).send({ status: false, msg: err.message });
-//     }
-// };
-
 const getFees = async function (req, res) {
   try {
     const searchKeyword = req.query.search;
@@ -278,4 +215,45 @@ const feesDelete = async function (req, res) {
   }
 };
 
-  module.exports = {feesAdd,getFees,updateFees,feesDelete}
+const calculateTotal = (price, noOfTicket, noOfWinner) => {
+  return price * noOfTicket - price * noOfWinner;
+};
+
+const calculateNetProfitMonthWise = async (req, res) => {
+  try {
+    // Get the current date
+    const currentDate = new Date();
+
+    // Calculate the start date for 7 months ago
+    const sevenMonthsAgo = new Date();
+    sevenMonthsAgo.setMonth(currentDate.getMonth() - 7);
+
+    // Query data for the last 7 months
+    const data = await feesModel.find({
+      createdAt: { $gte: sevenMonthsAgo, $lte: currentDate },
+      /* Add any other criteria as needed */
+    }).lean();
+
+    const result = {};
+
+    // Initialize result object with all months and initial total 0
+    const allMonths = ['January', 'February', 'March', 'April', 'May', 'June', 'July'];
+    allMonths.forEach(month => result[month] = 0);
+
+    // Iterate through each month's data and calculate the total
+    data.forEach(({ _id, price, noOfTicket, noOfWinner, createdAt }) => {
+      const month = new Date(createdAt).toLocaleString('default', { month: 'long' });
+      const total = calculateTotal(parseFloat(price), parseFloat(noOfTicket), parseFloat(noOfWinner));
+
+      // Add the total to the result object for the corresponding month
+      result[month] += total;
+    });
+
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('Error processing data:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+  module.exports = {feesAdd,getFees,updateFees,feesDelete,calculateNetProfitMonthWise}
