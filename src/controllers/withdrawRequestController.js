@@ -147,107 +147,123 @@ const addWithdrawRequestData = async function (req, res) {
 // };
 
 const getWithdrawRequestData = async function (req, res) {
-    try {
-      let page = parseInt(req.query.page) || 1;
-      let pageSize = parseInt(req.query.pageSize) || 10;
-      const searchKeyword = req.query.search;
-      const keywordRegex = new RegExp(searchKeyword, 'i');
-      const isNumeric = !isNaN(searchKeyword);
-      const sortField = req.query.sortField || '_id'; // Default sort field
-      const sortOrder = req.query.sortOrder === 'desc' ? -1 : 1; // Default to ascending order
-  
-      const aggregatePipeline = [
-        {
-          $lookup: {
-            from: 'withdrawrequests',
-            localField: '_id',
-            foreignField: 'userId',
-            as: 'withdrawRequestData',
-          },
+  try {
+    let page = parseInt(req.query.page) || 1;
+    let pageSize = parseInt(req.query.pageSize) || 10;
+    const searchKeyword = req.query.search;
+    const keywordRegex = new RegExp(searchKeyword, 'i');
+    const isNumeric = !isNaN(searchKeyword);
+    const sortField = req.query.sortField || '_id'; // Default sort field
+    const sortOrder = req.query.sortOrder === 'desc' ? -1 : 1; // Default to ascending order
+
+    const aggregatePipeline = [
+      {
+        $lookup: {
+          from: 'withdrawrequests',
+          localField: '_id',
+          foreignField: 'userId',
+          as: 'withdrawRequestData',
         },
-        {
-          $unwind: {
-            path: '$withdrawRequestData',
-            preserveNullAndEmptyArrays: true,
-          },
+      },
+      {
+        $unwind: {
+          path: '$withdrawRequestData',
+          preserveNullAndEmptyArrays: true,
         },
-        {
-          $match: {
-            withdrawRequestData: { $exists: true },
-          },
+      },
+      {
+        $match: {
+          withdrawRequestData: { $exists: true },
         },
-        {
-          $project: {
-            userName: 1,
-            mobile: 1,
-            paymentId: {
-              $convert: {
-                input: '$withdrawRequestData.paymentId',
-                to: 'int',
-                onError: 0,
-                onNull: 0,
-              },
+      },
+      {
+        $project: {
+          userName: 1,
+          mobile: 1,
+          paymentId: {
+            $convert: {
+              input: '$withdrawRequestData.paymentId',
+              to: 'int',
+              onError: 0,
+              onNull: 0,
             },
-            amount: {
-              $convert: {
-                input: '$withdrawRequestData.amount',
-                to: 'int',
-                onError: 0,
-                onNull: 0,
-              },
-            },
-            wallet: '$withdrawRequestData.wallet',
-            accountNo: {
-              $convert: {
-                input: '$withdrawRequestData.accountNo',
-                to: 'int',
-                onError: 0,
-                onNull: 0,
-              },
-            },
-            remark: '$withdrawRequestData.remark',
-            status: '$withdrawRequestData.status',
-            orderId: '$withdrawRequestData._id',
-            date: '$withdrawRequestData.createdAt',
           },
-        },
-        {
-          $match: {
-            $or: [
-              { userName: { $regex: keywordRegex } },
-              { mobile: { $regex: keywordRegex } },
-              { paymentId: isNumeric ? { $eq: parseInt(searchKeyword) } : { $regex: keywordRegex } },
-              { amount: isNumeric ? { $eq: parseInt(searchKeyword) } : { $regex: keywordRegex } },
-              { wallet: { $regex: keywordRegex } },
-              { accountNo: isNumeric ? { $eq: parseInt(searchKeyword) } : { $regex: keywordRegex } },
-              { remark: { $regex: keywordRegex } },
-              { status: { $regex: keywordRegex } },
-              { date: { $regex: keywordRegex } },
-            ],
+          amount: {
+            $convert: {
+              input: '$withdrawRequestData.amount',
+              to: 'int',
+              onError: 0,
+              onNull: 0,
+            },
           },
+          wallet: '$withdrawRequestData.wallet',
+          accountNo: {
+            $convert: {
+              input: '$withdrawRequestData.accountNo',
+              to: 'int',
+              onError: 0,
+              onNull: 0,
+            },
+          },
+          remark: '$withdrawRequestData.remark',
+          status: '$withdrawRequestData.status',
+          orderId: '$withdrawRequestData._id',
+          date: '$withdrawRequestData.createdAt',
         },
-        {
-          $sort: { [sortField]: sortOrder },
+      },
+      {
+        $match: {
+          $or: [
+            { userName: { $regex: keywordRegex } },
+            { mobile: { $regex: keywordRegex } },
+            { paymentId: isNumeric ? { $eq: parseInt(searchKeyword) } : { $regex: keywordRegex } },
+            { amount: isNumeric ? { $eq: parseInt(searchKeyword) } : { $regex: keywordRegex } },
+            { wallet: { $regex: keywordRegex } },
+            { accountNo: isNumeric ? { $eq: parseInt(searchKeyword) } : { $regex: keywordRegex } },
+            { remark: { $regex: keywordRegex } },
+            { status: { $regex: keywordRegex } },
+            { date: { $regex: keywordRegex } },
+          ],
         },
-        {
-          $skip: (page - 1) * pageSize,
+      },
+      {
+        $facet: {
+          result: [
+            {
+              $sort: { [sortField]: sortOrder },
+            },
+            {
+              $skip: (page - 1) * pageSize,
+            },
+            {
+              $limit: pageSize,
+            },
+          ],
+          count: [
+            {
+              $count: 'total',
+            },
+          ],
         },
-        {
-          $limit: pageSize,
-        },
-      ];
-  
-      const result = await userModel.aggregate(aggregatePipeline);
-  
-      res.status(200).json({
-        status: true,
-        message: 'withdrawRequestData',
-        withdrawRequestData: result,
-      });
-    } catch (error) {
-      res.status(400).send({ success: false, msg: error.message });
-    }
-  };
+      },
+    ];
+
+    const result = await userModel.aggregate(aggregatePipeline);
+
+    // Extracting the count from the result
+    const count = result[0]?.count[0]?.total || 0;
+    const withdrawRequestData = result[0]?.result || [];
+
+    res.status(200).json({
+      status: true,
+      message: 'Withdraw Request Data',
+      count: count,
+      withdrawRequestData: withdrawRequestData,
+    });
+  } catch (error) {
+    res.status(400).send({ success: false, msg: error.message });
+  }
+};
 
   const countWithdrawalStatus = async function (req, res) {
     try {

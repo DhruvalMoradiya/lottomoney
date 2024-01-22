@@ -129,7 +129,6 @@ const getFees = async function (req, res) {
     const sortOrder = req.query.sortOrder === 'desc' ? -1 : 1;
     const page = parseInt(req.query.page) || 1;
     const pageSize = parseInt(req.query.pageSize) || 10;
-
     const keywordRegex = new RegExp(searchKeyword, 'i');
     const isNumeric = !isNaN(searchKeyword);
 
@@ -174,23 +173,39 @@ const getFees = async function (req, res) {
         },
       },
       {
-        $sort: {
-          [sortField]: sortOrder,
+        $facet: {
+          result: [
+            {
+              $sort: {
+                [sortField]: sortOrder,
+              },
+            },
+            {
+              $skip: (page - 1) * pageSize,
+            },
+            {
+              $limit: pageSize,
+            },
+          ],
+          count: [
+            {
+              $count: 'total',
+            },
+          ],
         },
-      },
-      {
-        $skip: (page - 1) * pageSize,
-      },
-      {
-        $limit: pageSize,
       },
     ];
 
-    const packagesWithFees = await packagesModel.aggregate(aggregatePipeline);
+    const result = await packagesModel.aggregate(aggregatePipeline);
+
+    // Extracting the count from the result
+    const count = result[0]?.count[0]?.total || 0;
+    const packagesWithFees = result[0]?.result || [];
 
     res.status(200).json({
       status: true,
       message: 'Packages with associated fees',
+      count: count,
       feesList: packagesWithFees,
     });
   } catch (error) {
