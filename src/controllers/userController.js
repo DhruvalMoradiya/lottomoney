@@ -295,32 +295,46 @@ const updateUserProfile = async function (req, res) {
 
         // Always return a 200 status, whether data is found or not
         return res.status(200).send({
-            status: true,
-            message: "userData",
-            count: totalDocuments,
-            userData: userData.sort((a, b) => {
-                for (const field of sortFields) {
-                    const valueA = a[field];
-                    const valueB = b[field];
-
-                    if (numericFields.includes(field)) {
-                        // Convert to numeric values for numeric fields
-                        const numericValueA = parseInt(valueA) || 0;
-                        const numericValueB = parseInt(valueB) || 0;
-                        if (numericValueA !== numericValueB) {
-                            return sortOrder === 'asc' ? numericValueA - numericValueB : numericValueB - numericValueA;
-                        }
-                    } else {
-                        // Default sorting for other fields
-                        const compareResult = sortOrder === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
-                        if (compareResult !== 0) {
-                            return compareResult;
-                        }
-                    }
-                }
-                return 0;
-            }),
-        });
+          status: true,
+          message: "userData",
+          count: totalDocuments,
+          userData: userData.sort((a, b) => {
+              for (const field of sortFields) {
+                  const valueA = a[field];
+                  const valueB = b[field];
+      
+                  if (numericFields.includes(field)) {
+                      // Convert to numeric values for numeric fields
+                      const numericValueA = parseInt(valueA) || 0;
+                      const numericValueB = parseInt(valueB) || 0;
+                      if (numericValueA !== numericValueB) {
+                          return sortOrder === 'asc' ? numericValueA - numericValueB : numericValueB - numericValueA;
+                      }
+                  } else {
+                      // Default sorting for other fields
+                      const compareResult = compareValues(valueA, valueB, sortOrder);
+                      if (compareResult !== 0) {
+                          return compareResult;
+                      }
+                  }
+              }
+              return 0;
+          }),
+      });
+      
+      function compareValues(valueA, valueB, sortOrder) {
+          // Handle null or undefined values
+          if (valueA == null && valueB == null) {
+              return 0;
+          } else if (valueA == null) {
+              return sortOrder === 'asc' ? -1 : 1;
+          } else if (valueB == null) {
+              return sortOrder === 'asc' ? 1 : -1;
+          }
+      
+          // Default sorting for other fields
+          return sortOrder === 'asc' ? valueA.localeCompare(valueB) : valueB.localeCompare(valueA);
+      }
     } catch (err) {
         res.status(500).send({ status: false, msg: err.message });
     }
