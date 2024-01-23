@@ -173,11 +173,25 @@ const getWithdrawRequestData = async function (req, res) {
     const count = result[0]?.count[0]?.total || 0;
     const withdrawRequestData = result[0]?.result || [];
 
+    const sortedWithdrawRequestData = withdrawRequestData.slice().sort((a, b) => {
+      if (sortField === 'wallet') {
+        const walletA = a.wallet.toLowerCase();
+        const walletB = b.wallet.toLowerCase();
+        return sortOrder === 1 ? walletA.localeCompare(walletB) : walletB.localeCompare(walletA);
+      } else if (sortField === 'status') {
+        const statusA = a.status.toLowerCase();
+        const statusB = b.status.toLowerCase();
+        return sortOrder * statusA.localeCompare(statusB);
+      } else {
+        return a[sortField] > b[sortField] ? sortOrder : -sortOrder;
+      }
+    });
+
     res.status(200).json({
       status: true,
       message: 'Withdraw Request Data',
       count: count,
-      withdrawRequestData: withdrawRequestData,
+      withdrawRequestData: sortedWithdrawRequestData,
     });
   } catch (error) {
     res.status(400).send({ success: false, msg: error.message });
