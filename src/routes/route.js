@@ -19,7 +19,7 @@ const { addContestData,getContestData,searchContest,updateContest,contestDelete,
 const {addDummyUserData,getDummyUserData,searchDummyUser,updateDummyUser,dummyUserDelete} = require("../controllers/dummyUserController")
 const {addSendNotificationData,getSendNotificationData} = require("../controllers/sendNotificationController")
 const {addModeofPayment,getModeofPaymentDetail} = require("../controllers/appDetailsPaymentGatewayController")
-const {addPaymentData,getPaymentData} = require("../controllers/paymentGatewayAllController")
+const {addPaymentData,getPaymentData,getPayment} = require("../controllers/paymentGatewayAllController")
 const {addWithdrawRequestData,getWithdrawRequestData,countWithdrawalStatus} = require("../controllers/withdrawRequestController")
 
 router.post("/register",createUser)
@@ -74,6 +74,7 @@ router.post("/file",authenticationAdmin,addFile)
 
  router.post("/paymentadd",authenticationAdmin,addPaymentData)
  router.get("/paymentget",authenticationAdmin,getPaymentData)
+ router.get("/payment",getPayment)
 
  router.post("/otherdataadd",authenticationAdmin,addOtherData)
  router.get("/otherdataget",authenticationAdmin,getOtherData)
