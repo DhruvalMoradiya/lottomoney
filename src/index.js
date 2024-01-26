@@ -7,6 +7,9 @@ const multer = require('multer')
 const cors = require('cors');
 const session = require('express-session');
 
+app.get('/', (req, res) => {
+  res.send('Hello, this is the root endpoint!');
+});
 
 app.use(cors());
 const Url = process.env.url;
