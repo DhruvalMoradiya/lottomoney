@@ -86,7 +86,7 @@ const adminUserLogin = async function (req, res) {
 
     if (passwordMatch === false)
       return res
-        .status(401)
+        .status(400)
         .send({ status: false, message: "Password is not correct" });
 
     const token = jwt.sign(
