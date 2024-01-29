@@ -226,5 +226,50 @@ const countAllContests = async function (req, res) {
     }
 };
 
+const contestGetDetails = async function (req, res) {
+    try {
+        let data = req.query;
 
-  module.exports = {addContestData,getContestData,searchContest,updateContest,contestDelete,countAllContests}
+        const contestDetail = await contestModel.find({ $and: [data,{ isDeleted: false }] })
+        .select({ startDate:1, endDate:1, status:1,})
+
+        if (contestDetail.length == 0) {
+            return res.status(404).send({ status: false, msg: "No contest found" });
+        }
+
+        if (contestDetail.length > 0) {
+            return res.status(200).send({ status: true, message: "contest details", data: contestDetail });
+        }
+        else {
+            return res.status(404).send({ status: false, message: "No contest found" })
+        }
+    }
+    catch (err) {
+        res.status(500).send({ status: false, msg: err.message });
+    }
+}
+
+const contestGetLiveDetails = async function (req, res) {
+    try {
+        let data = req.query;
+
+        const contestDetail = await contestModel.find({ $and: [data,{status: { $regex: new RegExp('live', 'i') },isDeleted: false }] })
+        .select({ startDate:1, endDate:1, status:1,})
+
+        if (contestDetail.length == 0) {
+            return res.status(404).send({ status: false, msg: "No contest found" });
+        }
+
+        if (contestDetail.length > 0) {
+            return res.status(200).send({ status: true, message: "contest details", data: contestDetail });
+        }
+        else {
+            return res.status(404).send({ status: false, message: "No contest found" })
+        }
+    }
+    catch (err) {
+        res.status(500).send({ status: false, msg: err.message });
+    }
+}
+
+  module.exports = {addContestData,getContestData,searchContest,updateContest,contestDelete,countAllContests,contestGetDetails,contestGetLiveDetails}

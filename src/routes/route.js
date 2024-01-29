@@ -15,7 +15,7 @@ const { addOtherData, getOtherData } = require("../controllers/appDetailsOtherCo
 const { addAppUpdateData,getAppUpdateData } = require("../controllers/appUpdateController")
 const { addPrivacyPolicy,getPrivacyPolicy } = require("../controllers/configurationPrivacyPolicyController")
 const { addTermsAndCondition,getTermsAndCondition } = require("../controllers/configurationTermsAndConditionsController")
-const { addContestData,getContestData,searchContest,updateContest,contestDelete,countAllContests} = require("../controllers/contestController")
+const { addContestData,getContestData,searchContest,updateContest,contestDelete,countAllContests,contestGetDetails,contestGetLiveDetails} = require("../controllers/contestController")
 const {addDummyUserData,getDummyUserData,searchDummyUser,updateDummyUser,dummyUserDelete} = require("../controllers/dummyUserController")
 const {addSendNotificationData,getSendNotificationData} = require("../controllers/sendNotificationController")
 const {addModeofPayment,getModeofPaymentDetail} = require("../controllers/appDetailsPaymentGatewayController")
@@ -27,8 +27,8 @@ router.post("/login", userLogin)
 router.get("/userdataget",authenticationAdmin,getUserData)
 
 router.put("/user/:userId/profile",authentication,autherization,updateUserProfile)
-router.put("/forgotpassword",forgotPassword)
-router.put("/changepassword",forgotPasswordEnterOldPassword)
+router.put("/forgotpassword",authentication,forgotPassword)
+router.put("/changepassword",authentication,forgotPasswordEnterOldPassword)
 
 //Admin
 
@@ -103,17 +103,19 @@ router.post("/file",authenticationAdmin,addFile)
  router.get("/dummyuserget",authenticationAdmin,getDummyUserData)
  router.get("/searchdummyuser/:key",authenticationAdmin,searchDummyUser)
  router.put("/dummyuserupdate/:userId",authenticationAdmin,updateDummyUser)
- router.delete("/dummyuserdelete/:userId",authenticationAdmin,dummyUserDelete)
- 
+ router.delete("/dummyuserdelete/:userId",authenticationAdmin,dummyUserDelete) 
 
  router.post("/sendwithdrawrequest",authentication,addWithdrawRequestData)
  router.get("/withdrawrequest",authenticationAdmin,getWithdrawRequestData)
-
-
 
  router.post("/sendnotificationadd",authenticationAdmin,addSendNotificationData)
  router.get("/sendnotificationget",authenticationAdmin,getSendNotificationData)
 
  // ?page=1&pageSize=20
  
+ 
+// User//
+router.get("/usercontest",authentication,contestGetDetails)
+router.get("/usercontestlive",authentication,contestGetLiveDetails)
+
 module.exports = router;
