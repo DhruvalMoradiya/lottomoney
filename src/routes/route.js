@@ -15,12 +15,14 @@ const { addOtherData, getOtherData } = require("../controllers/appDetailsOtherCo
 const { addAppUpdateData,getAppUpdateData } = require("../controllers/appUpdateController")
 const { addPrivacyPolicy,getPrivacyPolicy } = require("../controllers/configurationPrivacyPolicyController")
 const { addTermsAndCondition,getTermsAndCondition } = require("../controllers/configurationTermsAndConditionsController")
-const { addContestData,getContestData,searchContest,updateContest,contestDelete,countAllContests,contestGetDetails,contestGetLiveDetails} = require("../controllers/contestController")
+const { addContestData,getContestData,searchContest,updateContest,contestDelete,countAllContests,contestGetDetails,contestGetLiveDetails,
+        contestGetUpcomingDetails} = require("../controllers/contestController")
 const {addDummyUserData,getDummyUserData,searchDummyUser,updateDummyUser,dummyUserDelete} = require("../controllers/dummyUserController")
 const {addSendNotificationData,getSendNotificationData} = require("../controllers/sendNotificationController")
 const {addModeofPayment,getModeofPaymentDetail} = require("../controllers/appDetailsPaymentGatewayController")
 const {addPaymentData,getPaymentData} = require("../controllers/paymentGatewayAllController")
 const {addWithdrawRequestData,getWithdrawRequestData,countWithdrawalStatus} = require("../controllers/withdrawRequestController")
+const {createWinner,getWinners} = require("../controllers/userWinnerController")
 
 router.post("/register",createUser)
 router.post("/login", userLogin)
@@ -117,5 +119,6 @@ router.post("/file",authenticationAdmin,addFile)
 // User//
 router.get("/usercontest",authentication,contestGetDetails)
 router.get("/usercontestlive",authentication,contestGetLiveDetails)
+router.get("/usercontestupcoming",authentication,contestGetUpcomingDetails)
 
 module.exports = router;
