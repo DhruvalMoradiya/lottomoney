@@ -151,36 +151,42 @@ const forgotPassword = async (req, res) => {
 };
 
 const forgotPasswordEnterOldPassword = async (req, res) => {
-    try {
-        const oldPassword = req.body.oldPassword;
-        const newPassword = req.body.password;
-        const confirmPassword = req.body.confirmPassword;
+  try {
+    const userEmail = req.body.email;
+    const oldPassword = req.body.oldPassword;
+    const newPassword = req.body.newPassword; // Change 'password' to 'newPassword'
+    const confirmPassword = req.body.confirmPassword;
 
-        const data = await userModel.findOne({ password: oldPassword });
+      const user = await userModel.findOne({ email: userEmail });
 
-        if (data) {
-            if (!isValid(newPassword)) {
-                return res.status(400).send({ success: false, message: "Enter a valid password" });
-            }
+      if (user) {
+          const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
 
-            if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,15}$/.test(newPassword)) {
-                return res.status(400).send({ success: false, message: "Password should be 8 - 15 characters and include special characters or numbers" });
-            }
+          if (!isPasswordValid) {
+              return res.status(400).send({ success: false, message: "Old password is not correct" });
+          }
 
-            if (newPassword !== confirmPassword) {
-                return res.status(400).send({ success: false, message: "Your newpassword and confirmPassword do not match" });
-            }
+          // Simplified password validation
 
-            const hashedPassword = await bcrypt.hash(newPassword, 10);
-            await userModel.findOneAndUpdate({ password: oldPassword }, { $set: { password: hashedPassword } }, { new: true });
+          if (!newPassword || newPassword.length < 8) {
+              console.log("Password length check failed:", newPassword.length); // Log the actual length of the password
+              return res.status(400).send({ success: false, message: "Password should be at least 8 characters long" });
+          }
+          
+          if (newPassword !== confirmPassword) {
+              return res.status(400).send({ success: false, message: "Your new password and confirmPassword do not match" });
+          }
 
-            res.status(200).send({ success: true, message: "Your password has been updated" });
-        } else {
-            res.status(404).send({ success: false, message: "Old password is not correct" });
-        }
-    } catch (error) {
-        res.status(500).send({ success: false, message: error.message });
-    }
+          const hashedPassword = await bcrypt.hash(newPassword, 10);
+          await userModel.findOneAndUpdate({ email: userEmail }, { $set: { password: hashedPassword } }, { new: true });
+
+          res.status(200).send({ success: true, message: "Your password has been updated" });
+      } else {
+          res.status(404).send({ success: false, message: "User not found" });
+      }
+  } catch (error) {
+      res.status(500).send({ success: false, message: error.message });
+  }
 };
 
 const updateUserProfile = async function (req, res) {
