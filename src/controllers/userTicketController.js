@@ -35,23 +35,34 @@ const createTicket= async function (req, res) {
     }
   }
 
+  const { Types } = mongoose;
 
-const getMyTicket = async function (req, res) {
+  const getMyTicket = async function (req, res) {
     try {
-      const userId = req.params.userId; // Extract user ID from request parameters
-
+      const userId = req.params.userId;
+  
       if (!ObjectId.isValid(userId)) {
         return res.status(400).send({ status: false, message: "userID is invalid" });
-    }
-      // Use the userId in the find query
-      const winners = await ticketModel.find({ userId });
+      }
   
-      res.json(winners);
+      // Use the userId in the find query and populate the associated contest data
+      const winners = await ticketModel.find({ userId }).populate('contestId');
+  
+      // Map the results to the desired format
+      const transformedWinners = winners.map(({ _id, userId, contestId }) => ({
+        _id,
+        userId,
+        startDate: contestId.startDate,
+        endDate: contestId.endDate,
+        participants: contestId.participants,
+        status: contestId.status,
+      }));
+  
+      res.json(transformedWinners);
     } catch (error) {
       console.error(error);
       res.status(500).json({ error: 'Internal Server Error' });
     }
   }
-  
-  
+
   module.exports = {createTicket,getMyTicket};

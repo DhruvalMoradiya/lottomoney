@@ -23,6 +23,7 @@ const {addModeofPayment,getModeofPaymentDetail} = require("../controllers/appDet
 const {addPaymentData,getPaymentData} = require("../controllers/paymentGatewayAllController")
 const {addWithdrawRequestData,getWithdrawRequestData,countWithdrawalStatus} = require("../controllers/withdrawRequestController")
 const {createWinner,getWinners} = require("../controllers/userWinnerController")
+const {createTicket,getMyTicket} = require("../controllers/userTicketController")
 
 router.post("/register",createUser)
 router.post("/login", userLogin)
@@ -120,5 +121,11 @@ router.post("/file",authenticationAdmin,addFile)
 router.get("/usercontest",authentication,contestGetDetails)
 router.get("/usercontestlive",authentication,contestGetLiveDetails)
 router.get("/usercontestupcoming",authentication,contestGetUpcomingDetails)
+
+router.post("/winner",authentication,createWinner)
+router.get("/winner/:userId",authentication,getWinners)
+
+router.post("/myticket",authentication,createTicket)
+router.get("/myticket/:userId",authentication,getMyTicket)
 
 module.exports = router;
