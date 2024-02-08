@@ -38,9 +38,9 @@ const createUser = async function (req, res) {
 
         if (userDetails) {
           if (userDetails.email == email) {
-              return res.status(400).send({ status: false, message: `${email} email already exist` })
+              return res.status(200).send({ status: false, message: `${email} email already exist` })
             } else {
-                return res.status(400).send({ status: false, message: `${mobile} mobile already exist` })
+                return res.status(200).send({ status: false, message: `${mobile} mobile already exist` })
               }
         }
 
@@ -238,9 +238,9 @@ const updateUserProfile = async function (req, res) {
   
       if (userDetails) {
         if (userDetails.email == email) {
-          return res.status(400).send({ status: false, message: `${email} email  already exist` })
+          return res.status(200).send({ status: false, message: `${email} email  already exist` })
         } else {
-          return res.status(400).send({ status: false, message: `${mobile} mobile already exist` })
+          return res.status(200).send({ status: false, message: `${mobile} mobile already exist` })
         }
       }
     }
