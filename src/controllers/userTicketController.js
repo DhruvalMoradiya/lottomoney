@@ -14,7 +14,7 @@ const isValidBody = function(x) {
 
 const createTicket= async function (req, res) {
     try {
-      const { userId, contestId } = req.body;
+      const { userId, contestId,entryFee,ticketNo } = req.body;
   
 
       if (!ObjectId.isValid(userId)) {
@@ -25,7 +25,14 @@ const createTicket= async function (req, res) {
         return res.status(400).send({ status: false, message: "contestId is invalid" });
     }
   
-      const newWinner = new ticketModel({ userId, contestId });
+    if (!isValid(entryFee)) {
+      return res.status(400).send({ status: false, message: "entryFee is required" });
+    }
+
+    if (!isValid(ticketNo)) {
+      return res.status(400).send({ status: false, message: "ticketNo is required" });
+    }
+      const newWinner = new ticketModel({ userId, contestId,entryFee,ticketNo });
       const savedWinner = await newWinner.save();
   
       res.status(201).json(savedWinner);
@@ -49,9 +56,11 @@ const createTicket= async function (req, res) {
       const winners = await ticketModel.find({ userId }).populate('contestId');
   
       // Map the results to the desired format
-      const transformedWinners = winners.map(({ _id, userId, contestId }) => ({
+      const transformedWinners = winners.map(({ _id, userId,entryFee,ticketNo,contestId }) => ({
         _id,
         userId,
+        entryFee,
+        ticketNo,
         startDate: contestId.startDate,
         endDate: contestId.endDate,
         participants: contestId.participants,

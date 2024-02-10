@@ -7,6 +7,10 @@ const ticketSchema = new mongoose.Schema({
 
     contestId:{ type: ObjectId, ref: "Contest",trim: true, },
 
+    entryFee:{ type: String,trim: true,},
+
+    ticketNo:{ type: String,trim: true,},
+
     deletedAt: { type: Date },   
     
     isDeleted: { type: Boolean, default: false }
