@@ -295,4 +295,29 @@ const contestGetUpcomingDetails = async function (req, res) {
     }
 }
 
-  module.exports = {addContestData,getContestData,searchContest,updateContest,contestDelete,countAllContests,contestGetDetails,contestGetLiveDetails,contestGetUpcomingDetails}
+
+const endContestDetails = async function (req, res) {
+    try {
+        const currentDate = new Date();
+        const formattedDate = currentDate.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-');
+
+        const contests = await contestModel.find({
+            $and: [
+                { endDate: { $lte: formattedDate } }, // End date less than or equal to current date
+                { isDeleted: false }
+            ]
+        });
+
+        if (contests.length === 0) {
+            return res.status(404).send({ status: false, msg: "No ended contest found" });
+        }
+
+        return res.status(200).send({ status: true, message: "Ended contest details", data: contests });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send({ status: false, msg: "Internal Server Error" });
+    }
+}
+
+  module.exports = {addContestData,getContestData,searchContest,updateContest,contestDelete,countAllContests,contestGetDetails,contestGetLiveDetails,
+                    contestGetUpcomingDetails,endContestDetails}

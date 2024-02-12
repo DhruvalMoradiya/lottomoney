@@ -56,8 +56,7 @@ const addSendNotificationData = async function (req, res) {
         const sendNotificationData = await sendNotificationModel
             .findOne({ isDeleted: false })
             .select({ title:1, message:1, externalLink:1, imageURL:1,_id: 0 })
-            .sort({ createdAt: -1 });
-
+            
         if (!sendNotificationData) {
             return res.status(404).send({ status: false, msg: "No sendNotificationData found" });
         }

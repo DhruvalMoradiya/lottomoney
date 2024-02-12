@@ -16,14 +16,14 @@ const { addAppUpdateData,getAppUpdateData } = require("../controllers/appUpdateC
 const { addPrivacyPolicy,getPrivacyPolicy } = require("../controllers/configurationPrivacyPolicyController")
 const { addTermsAndCondition,getTermsAndCondition } = require("../controllers/configurationTermsAndConditionsController")
 const { addContestData,getContestData,searchContest,updateContest,contestDelete,countAllContests,contestGetDetails,contestGetLiveDetails,
-        contestGetUpcomingDetails} = require("../controllers/contestController")
+        contestGetUpcomingDetails,endContestDetails} = require("../controllers/contestController")
 const {addDummyUserData,getDummyUserData,searchDummyUser,updateDummyUser,dummyUserDelete} = require("../controllers/dummyUserController")
 const {addSendNotificationData,getSendNotificationData} = require("../controllers/sendNotificationController")
 const {addModeofPayment,getModeofPaymentDetail} = require("../controllers/appDetailsPaymentGatewayController")
 const {addPaymentData,getPaymentData} = require("../controllers/paymentGatewayAllController")
 const {addWithdrawRequestData,getWithdrawRequestData,countWithdrawalStatus} = require("../controllers/withdrawRequestController")
 const {createWinner,getWinners} = require("../controllers/userWinnerController")
-const {createTicket,getMyTicket} = require("../controllers/userTicketController")
+const {createTicket,getMyTicket,getUserByUserId,updateWinnerForContestTickets} = require("../controllers/userTicketController")
 const {createPrizePool,getPrizePool,updatePrizePool,prizePoolDelete} = require("../controllers/prizepoolMasterController")
 
 router.post("/register",createUser)
@@ -103,6 +103,7 @@ router.post("/file",authenticationAdmin,addFile)
  router.get("/counttotaluser",authenticationAdmin,countTotalusers)
  router.get("/countwithdrawalstatus",authenticationAdmin,countWithdrawalStatus)
  router.get("/calculatenetprofitmonthwise",authenticationAdmin,calculateNetProfitMonthWise)
+ router.get("/endcontest",authentication,endContestDetails)
 
  router.post("/dummyuseradd",authenticationAdmin,addDummyUserData)
  router.get("/dummyuserget",authenticationAdmin,getDummyUserData)
@@ -129,10 +130,12 @@ router.get("/usercontest",authentication,contestGetDetails)
 router.get("/usercontestlive",authentication,contestGetLiveDetails)
 router.get("/usercontestupcoming",authentication,contestGetUpcomingDetails)
 
-router.post("/winner",authentication,createWinner)
-router.get("/winner/:userId",authentication,getWinners)
+// router.post("/winner",authentication,createWinner)
+// router.get("/winner/:userId",authentication,getWinners)
 
 router.post("/myticket",authentication,createTicket)
 router.get("/myticket/:userId",authentication,getMyTicket)
+router.get("/winner/:userId",authentication,getUserByUserId)
+router.put("/winner/:contestId",authentication,updateWinnerForContestTickets)
 
 module.exports = router;

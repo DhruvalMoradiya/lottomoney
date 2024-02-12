@@ -11,6 +11,8 @@ const ticketSchema = new mongoose.Schema({
 
     ticketNo:{ type: String,trim: true,},
 
+    winner: { type: String, default:"luser" },
+
     deletedAt: { type: Date },   
     
     isDeleted: { type: Boolean, default: false }
