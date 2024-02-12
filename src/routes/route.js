@@ -24,7 +24,7 @@ const {addPaymentData,getPaymentData} = require("../controllers/paymentGatewayAl
 const {addWithdrawRequestData,getWithdrawRequestData,countWithdrawalStatus} = require("../controllers/withdrawRequestController")
 const {createWinner,getWinners} = require("../controllers/userWinnerController")
 const {createTicket,getMyTicket,getUserByUserId,updateWinnerForContestTickets} = require("../controllers/userTicketController")
-const {createPrizePool,getPrizePool,updatePrizePool,prizePoolDelete} = require("../controllers/prizepoolMasterController")
+const {createPrizePool,getPrizePool,updatePrizePool,prizePoolDelete,prizePoolDeleteAll} = require("../controllers/prizepoolMasterController")
 
 router.post("/register",createUser)
 router.post("/login", userLogin)
@@ -122,7 +122,8 @@ router.post("/file",authenticationAdmin,addFile)
  router.post("/prizepooladd",authenticationAdmin,createPrizePool)
  router.get("/prizepoolget",authenticationAdmin,getPrizePool)
  router.put("/prizepoolupdate/:prizePoolId",authenticationAdmin,updatePrizePool)
- router.delete("/prizepooldelete/:prizePoolId",authenticationAdmin,prizePoolDelete) 
+ router.delete("/prizepooldelete/:prizePoolId",authenticationAdmin,prizePoolDelete)
+ router.delete("/prizepooldeleteall",authenticationAdmin,prizePoolDeleteAll)  
  
  
 // User//
