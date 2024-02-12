@@ -5,7 +5,7 @@ const {createUser, userLogin, forgotPassword,forgotPasswordEnterOldPassword,upda
 const {createAdminUser, adminUserLogin, adminChangePassword, updateAdminProfile} = require("../controllers/adminUserController")
 const {authentication ,autherization,authenticationAdmin,autherizationAdmin}= require('../middleware/auth')
 const { addPackageList,getPackage,packageDelete,updatePackage,countContesttype} = require("../controllers/masterPackagesController")
-const { feesAdd,getFees,updateFees,feesDelete,calculateNetProfitMonthWise} = require("../controllers/masterFeesController")
+const { feesAdd,getFees,updateFees,feesDelete,calculateNetProfitMonthWise,getFeesByPackageId} = require("../controllers/masterFeesController")
 const { addAboutUs,getAboutUs } = require("../controllers/configurationAboutController")
 const { addContactUs,getContactUs } = require("../controllers/configurationContactController")
 const { addBasicInfo,addFile,getBasicInfo } = require("../controllers/appDetailsBasicInfoController")
@@ -24,6 +24,7 @@ const {addPaymentData,getPaymentData} = require("../controllers/paymentGatewayAl
 const {addWithdrawRequestData,getWithdrawRequestData,countWithdrawalStatus} = require("../controllers/withdrawRequestController")
 const {createWinner,getWinners} = require("../controllers/userWinnerController")
 const {createTicket,getMyTicket} = require("../controllers/userTicketController")
+const {createPrizePool,getPrizePool,updatePrizePool,prizePoolDelete} = require("../controllers/prizepoolMasterController")
 
 router.post("/register",createUser)
 router.post("/login", userLogin)
@@ -56,7 +57,8 @@ router.post("/file",authenticationAdmin,addFile)
   //?page=1&pageSize=10&search=g&sortField=packageName&sortOrder=asc
  router.delete("/fees/:feeId",authenticationAdmin,feesDelete)
  router.put("/feesupdate/:feeId",authenticationAdmin,updateFees)
- 
+ router.get("/fees/:packageId",authenticationAdmin,getFeesByPackageId)
+
  router.post("/aboutusadd",authenticationAdmin,addAboutUs)
  router.get("/aboutusget",authenticationAdmin,getAboutUs)
 
@@ -115,6 +117,11 @@ router.post("/file",authenticationAdmin,addFile)
  router.get("/sendnotificationget",authenticationAdmin,getSendNotificationData)
 
  // ?page=1&pageSize=20
+
+ router.post("/prizepooladd",authenticationAdmin,createPrizePool)
+ router.get("/prizepoolget",authenticationAdmin,getPrizePool)
+ router.put("/prizepoolupdate/:prizePoolId",authenticationAdmin,updatePrizePool)
+ router.delete("/prizepooldelete/:prizePoolId",authenticationAdmin,prizePoolDelete) 
  
  
 // User//

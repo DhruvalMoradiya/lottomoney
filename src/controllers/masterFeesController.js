@@ -256,4 +256,28 @@ const calculateNetProfitMonthWise = async (req, res) => {
   }
 };
 
-  module.exports = {feesAdd,getFees,updateFees,feesDelete,calculateNetProfitMonthWise}
+const getFeesByPackageId = async function (req, res) {
+  try {
+    const packageId = req.params.packageId;
+
+    // Retrieve fees for the given packageId
+    const fees = await feesModel.find({ packageId, isDeleted: false });
+
+    // Retrieve the package details for the given packageId
+    const packageDetails = await packagesModel.findById(packageId);
+
+    // Extract the package name from the package details
+    const packageName = packageDetails ? packageDetails.packageName : null;
+
+    return res.status(200).send({
+      status: true,
+      message: "Fees details",
+      packageName: packageName,
+      data: fees
+    });
+  } catch (err) {
+    res.status(500).send({ status: false, message: err.message });
+  }
+};
+
+  module.exports = {feesAdd,getFees,updateFees,feesDelete,calculateNetProfitMonthWise,getFeesByPackageId}
