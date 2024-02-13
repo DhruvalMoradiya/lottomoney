@@ -24,7 +24,8 @@ const {addPaymentData,getPaymentData} = require("../controllers/paymentGatewayAl
 const {addWithdrawRequestData,getWithdrawRequestData,countWithdrawalStatus} = require("../controllers/withdrawRequestController")
 const {createWinner,getWinners} = require("../controllers/userWinnerController")
 const {createTicket,getMyTicket,getUserByUserId,updateWinnerForContestTickets} = require("../controllers/userTicketController")
-const {createPrizePool,getPrizePool,updatePrizePool,prizePoolDelete} = require("../controllers/prizepoolMasterController")
+const {createPrizePool,getPrizePool,updatePrizePool,prizePoolDelete,prizePoolDeleteAll} = require("../controllers/prizepoolMasterController")
+const {createMeghalottoActivity,getMeghalottoActivity} = require("../controllers/meghalottoActivityController")
 
 router.post("/register",createUser)
 router.post("/login", userLogin)
