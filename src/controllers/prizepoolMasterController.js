@@ -150,4 +150,25 @@ const prizePoolDelete = async function (req, res) {
     }
 };
 
-  module.exports = {createPrizePool,getPrizePool,updatePrizePool,prizePoolDelete};
+
+const prizePoolDeleteAll = async function (req, res) {
+    try {
+        // Define the condition for deletion
+        let condition = { isDeleted: false };
+
+        // Delete all records that meet the condition
+        let deletedPrizePools = await prizePoolModel.deleteMany(condition);
+
+        // Check if any records were deleted
+        if (deletedPrizePools.deletedCount === 0) {
+            return res.status(404).send({ status: false, message: "No PrizePools found to delete" });
+        }
+
+        return res.status(200).send({ status: true, message: "PrizePools deleted successfully" });
+
+    } catch (error) {
+        return res.status(500).send({ status: false, message: error.message });
+    }
+};
+
+  module.exports = {createPrizePool,getPrizePool,updatePrizePool,prizePoolDelete,prizePoolDeleteAll};
