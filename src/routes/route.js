@@ -25,6 +25,7 @@ const {addWithdrawRequestData,getWithdrawRequestData,countWithdrawalStatus} = re
 const {createWinner,getWinners} = require("../controllers/userWinnerController")
 const {createTicket,getMyTicket,getUserByUserId,updateWinnerForContestTickets} = require("../controllers/userTicketController")
 const {createPrizePool,getPrizePool,updatePrizePool,prizePoolDelete} = require("../controllers/prizepoolMasterController")
+const {createMeghalottoActivity,getMeghalottoActivity} = require("../controllers/meghalottoActivityController")
 
 router.post("/register",createUser)
 router.post("/login", userLogin)
@@ -137,5 +138,8 @@ router.post("/myticket",authentication,createTicket)
 router.get("/myticket/:userId",authentication,getMyTicket)
 router.get("/winner/:userId",authentication,getUserByUserId)
 router.put("/winner/:contestId",authentication,updateWinnerForContestTickets)
+
+router.post("/meghalottoactivityadd",authenticationAdmin,createMeghalottoActivity)
+router.get("/meghalottoactivityget",authenticationAdmin,getMeghalottoActivity)
 
 module.exports = router;

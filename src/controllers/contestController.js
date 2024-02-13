@@ -298,26 +298,54 @@ const contestGetUpcomingDetails = async function (req, res) {
 
 const endContestDetails = async function (req, res) {
     try {
-        const currentDate = new Date();
+        const currentDate = new Date(); // Current date and time
         const formattedDate = currentDate.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-');
+        // Extracting the current month and year
+        const currentMonth = currentDate.getMonth() + 1; // Month is zero-indexed, so adding 1
+        const currentYear = currentDate.getFullYear();
 
-        const contests = await contestModel.find({
-            $and: [
-                { endDate: { $lte: formattedDate } }, // End date less than or equal to current date
-                { isDeleted: false }
-            ]
-        });
+        // Calculate the previous month and year
+        const previousMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+        const previousYear = currentMonth === 1 ? currentYear - 1 : currentYear;
 
+        // Query to find contests that are not deleted and have end dates matching the current month or the previous month
+        const contests = await contestModel.aggregate([
+            {
+                $match: {
+                    isDeleted: false,
+                    $expr: {
+                        $or: [
+                            {
+                                $and: [
+                                    { $eq: [{ $year: { $toDate: "$endDate" } }, currentYear] },
+                                    { $eq: [{ $month: { $toDate: "$endDate" } }, currentMonth] },
+                                    { $lte: [{ $toDate: "$endDate" }, currentDate] }
+                                ]
+                            },
+                            {
+                                $and: [
+                                    { $eq: [{ $year: { $toDate: "$endDate" } }, previousYear] },
+                                    { $eq: [{ $month: { $toDate: "$endDate" } }, previousMonth] }
+                                ]
+                            }
+                        ]
+                    }
+                }
+            }
+        ]);
+
+        // If no contests are found, return a 404 status with a message
         if (contests.length === 0) {
             return res.status(404).send({ status: false, msg: "No ended contest found" });
         }
 
-        return res.status(200).send({ status: true, message: "Ended contest details", data: contests });
+        // If contests are found, return a 200 status with the ended contest details
+        return res.status(200).send({ status: true, message: "Ended contest details", currentDate: formattedDate, data: contests });
     } catch (err) {
         console.error(err);
+        // If an error occurs during execution, return a 500 status with an error message
         res.status(500).send({ status: false, msg: "Internal Server Error" });
     }
-}
-
+};
   module.exports = {addContestData,getContestData,searchContest,updateContest,contestDelete,countAllContests,contestGetDetails,contestGetLiveDetails,
                     contestGetUpcomingDetails,endContestDetails}

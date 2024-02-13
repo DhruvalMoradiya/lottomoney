@@ -54,7 +54,7 @@ const addSendNotificationData = async function (req, res) {
   const getSendNotificationData = async function (req, res) {
     try {
         const sendNotificationData = await sendNotificationModel
-            .findOne({ isDeleted: false })
+            .find({ isDeleted: false })
             .select({ title:1, message:1, externalLink:1, imageURL:1,_id: 0 })
             
         if (!sendNotificationData) {
