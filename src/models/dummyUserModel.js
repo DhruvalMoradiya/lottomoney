@@ -3,6 +3,8 @@ const ObjectId = mongoose.Schema.Types.ObjectId
 
 const dummyUserSchema = new mongoose.Schema({
 
+    customId: { type: String, required: true, unique: true },
+    
     firstName:{ type: String,trim: true,},
 
     lastName:{ type: String,trim: true,},

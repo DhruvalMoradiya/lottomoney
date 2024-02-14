@@ -3,6 +3,8 @@ const ObjectId = mongoose.Schema.Types.ObjectId
 
 const withdrawRequestSchema = new mongoose.Schema({
 
+    customId: { type: String, required: true, unique: true },
+
     userId: { type: ObjectId, ref: "LuckyLottoUser",trim: true, },   
 
     paymentId:{ type: String,trim: true,},

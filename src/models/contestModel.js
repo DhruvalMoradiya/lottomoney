@@ -3,6 +3,8 @@ const ObjectId = mongoose.Schema.Types.ObjectId
 
 const contestSchema = new mongoose.Schema({
 
+    customId: { type: String, required: true, unique: true },
+
     startDate:{ type: String,trim: true,},
 
     endDate:{ type: String,trim: true,},

@@ -33,8 +33,23 @@ const addContestData = async function (req, res) {
           return res.status(400).send({ status: false, message: "endDate is required" });
       }
 
+      const lastContest = await contestModel.findOne({}, {}, { sort: { 'customId': -1 } });
+      let lastId = 0;
+
+      // If lastUser exists, retrieve customId
+      if (lastContest) {
+          lastId = parseInt(lastContest.customId) || 0;
+      }
+
+      // Generate new customId
+      const newId = lastId + 1;
+
+      // Set customId in body
+      body.customId = newId.toString();
+
       // Create new record
       let newContestData = {
+        customId:newId,
         startDate,
         endDate,
         status,
@@ -53,7 +68,7 @@ const getContestData = async function (req, res) {
     try {
         let page = req.query.page || 1;
         let pageSize = req.query.pageSize || 10;
-        let sortFields = req.query.sortFields || ['startDate'];
+        let sortFields = req.query.sortFields || ['customId'];
         let sortOrder = req.query.sortOrder || 'asc';
 
         if (!Array.isArray(sortFields)) {
@@ -70,7 +85,8 @@ const getContestData = async function (req, res) {
                 { status: { "$regex": new RegExp(key, "i") } },
                 { startDate: { "$regex": new RegExp(key, "i") } },
                 { endDate: { "$regex": new RegExp(key, "i") } },
-                { participants: { "$regex": new RegExp(key, "i") } }
+                { participants: { "$regex": new RegExp(key, "i") } },
+                { customId: { "$regex": new RegExp(key, "i") } }
             ];
         }
 
@@ -78,7 +94,7 @@ const getContestData = async function (req, res) {
 
         const contestData = await contestModel
             .find(query)
-            .select({ startDate: 1, endDate: 1, participants: 1, status: 1, _id: 1 })
+            .select({ customId: 1,startDate: 1, endDate: 1, participants: 1, status: 1, _id: 1 })
             .skip((page - 1) * pageSize)
             .limit(pageSize);
 

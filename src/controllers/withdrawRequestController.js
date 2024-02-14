@@ -42,12 +42,25 @@ const addWithdrawRequestData = async function (req, res) {
       if (!isValid(status)) {
         return res.status(400).send({ status: false, message: "status is required" });
       }
-  
-      // Fetch userId from token
-      const userId = req.token.userId; // Adjust the property according to how the user ID is stored in the token
-  
+                                          // Adjust the property according to how the user ID is stored in the token
+      const lastWithdrawRequest = await withdrawRequestModel.findOne({}, {}, { sort: { 'customId': -1 } });
+      let lastId = 0;
+
+      // If lastUser exists, retrieve customId
+      if (lastWithdrawRequest) {
+          lastId = parseInt(lastWithdrawRequest.customId) || 0;
+      }
+
+      // Generate new customId
+      const newId = lastId + 1;
+
+      // Set customId in body
+      body.customId = newId.toString();
+
+      const userId = req.token.userId; 
       // Create new record
       let newWithdrawRequesData = {
+        customId:newId,
         userId,
         paymentId,
         amount,
@@ -72,7 +85,7 @@ const getWithdrawRequestData = async function (req, res) {
     const searchKeyword = req.query.search;
     const keywordRegex = new RegExp(searchKeyword, 'i');
     const isNumeric = !isNaN(searchKeyword);
-    const sortField = req.query.sortField || '_id'; // Default sort field
+    const sortField = req.query.sortField || 'customId'; // Default sort field
     const sortOrder = req.query.sortOrder === 'desc' ? -1 : 1; // Default to ascending order
 
     const aggregatePipeline = [
@@ -115,6 +128,14 @@ const getWithdrawRequestData = async function (req, res) {
               onNull: 0,
             },
           },
+          customId: {
+            $convert: {
+              input: '$withdrawRequestData.customId',
+              to: 'int',
+              onError: 0,
+              onNull: 0,
+            },
+          },
           wallet: '$withdrawRequestData.wallet',
           accountNo: {
             $convert: {
@@ -135,6 +156,7 @@ const getWithdrawRequestData = async function (req, res) {
           $or: [
             { userName: { $regex: keywordRegex } },
             { mobile: { $regex: keywordRegex } },
+            { customId: { $regex: keywordRegex } },
             { paymentId: isNumeric ? { $eq: parseInt(searchKeyword) } : { $regex: keywordRegex } },
             { amount: isNumeric ? { $eq: parseInt(searchKeyword) } : { $regex: keywordRegex } },
             { wallet: { $regex: keywordRegex } },
@@ -146,11 +168,11 @@ const getWithdrawRequestData = async function (req, res) {
         },
       },
       {
+        $sort: { [sortField]: sortOrder }, // Move $sort stage before $facet
+      },
+      {
         $facet: {
           result: [
-            {
-              $sort: { [sortField]: sortOrder },
-            },
             {
               $skip: (page - 1) * pageSize,
             },

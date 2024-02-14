@@ -3,6 +3,8 @@ const ObjectId = mongoose.Schema.Types.ObjectId
 
 const feesSchema = new mongoose.Schema({
 
+    customId: { type: String, required: true, unique: true },
+
     packageId: { type: ObjectId, ref: "Package", required: true,trim: true, },   
 
     price: { type: String, required: true,trim: true,},

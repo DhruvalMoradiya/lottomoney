@@ -34,8 +34,22 @@ const addDummyUserData = async function (req, res) {
         return res.status(400).send({ status: false, message: "userName is required" });
     }
 
+    const lastDummyUser = await dummyUserModel.findOne({}, {}, { sort: { 'customId': -1 } });
+    let lastId = 0;
+
+    // If lastUser exists, retrieve customId
+    if (lastDummyUser) {
+        lastId = parseInt(lastDummyUser.customId) || 0;
+    }
+
+    // Generate new customId
+    const newId = lastId + 1;
+
+    // Set customId in body
+    body.customId = newId.toString();
       // Create new record
       let newDummyUserData = {
+        customId:newId,
         firstName, 
         lastName, 
         userName
@@ -54,7 +68,7 @@ const getDummyUserData = async function (req, res) {
     try {
         let page = req.query.page || 1;
         let pageSize = req.query.pageSize || 10;
-        let sortFields = req.query.sortFields || ['firstName']; // Default sort field is 'firstName'
+        let sortFields = req.query.sortFields || ['customId']; // Default sort field is 'firstName'
         let sortOrder = req.query.sortOrder || 'asc';
         const searchKeyword = req.query.search || ''; // Default to an empty string if 'search' parameter is not provided
 
@@ -67,7 +81,8 @@ const getDummyUserData = async function (req, res) {
             $or: [
                 { firstName: { "$regex": searchKeyword, "$options": "i" } },
                 { lastName: { "$regex": searchKeyword, "$options": "i" } },
-                { userName: { "$regex": searchKeyword, "$options": "i" } }
+                { userName: { "$regex": searchKeyword, "$options": "i" } },
+                { customId: { "$regex": new RegExp(searchKeyword, "i") } }
             ]
         };
 
@@ -75,7 +90,7 @@ const getDummyUserData = async function (req, res) {
 
         const dummyUserData = await dummyUserModel
             .find(query)
-            .select({ firstName: 1, lastName: 1, userName: 1, _id: 1 })
+            .select({ customId: 1,firstName: 1, lastName: 1, userName: 1, _id: 1 })
             .skip((page - 1) * pageSize)
             .limit(pageSize);
 

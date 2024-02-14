@@ -24,9 +24,23 @@ const addPackageList = async function (req, res) {
             return res.status(400).send({ status: false, message: "packageName is required" });
         }
 
-        let newPackagetData = { packageName };
+        const lastPackage = await packagesModel.findOne({}, {}, { sort: { 'customId': -1 } });
+        let lastId = 0;
+  
+        // If lastUser exists, retrieve customId
+        if (lastPackage) {
+            lastId = parseInt(lastPackage.customId) || 0;
+        }
+  
+        // Generate new customId
+        const newId = lastId + 1;
+  
+        // Set customId in body
+        body.customId = newId.toString(); // Convert to string
 
-        let packageData = await packagesModel.create(newPackagetData);
+        let newPackageData = { packageName, customId: newId };
+
+        let packageData = await packagesModel.create(newPackageData);
         return res.status(201).send({ status: true, message: "packageData created successfully", packageData });
     } catch (error) {
         console.log(error);
@@ -35,13 +49,13 @@ const addPackageList = async function (req, res) {
 }
 
 
-
 const getPackage = async function (req, res) {
     try {
         let page = req.query.page || 1;
         let pageSize = req.query.pageSize || 10;
+        let sortFields = req.query.sortFields || 'customId'; // Default sort field is 'customId'
         let sortOrder = req.query.sortOrder || 'asc';
-        const searchKeyword = req.query.search;
+        const searchKeyword = req.query.search || '';
 
         // Validate sortOrder to ensure it's either 'asc' or 'desc'
         sortOrder = sortOrder.toLowerCase() === 'desc' ? -1 : 1;
@@ -49,7 +63,8 @@ const getPackage = async function (req, res) {
         const query = {
             isDeleted: false,
             $or: [
-                { packageName: { $regex: new RegExp(searchKeyword, 'i') } }
+                { packageName: { $regex: new RegExp(searchKeyword, 'i') } },
+                { customId: { $regex: new RegExp(searchKeyword, 'i') } }
             ]
         };
 
@@ -60,10 +75,11 @@ const getPackage = async function (req, res) {
         const packageDetail = await packagesModel
             .find(query)
             .select({
+                customId: 1,
                 packageName: 1,
                 _id: 1
             })
-            .sort({ packageName: sortOrder })  // Sort by packageName
+            .sort({ [sortFields]: sortOrder }) // Sort by the specified field
             .skip((page - 1) * pageSize)
             .limit(pageSize)
             .exec();
@@ -82,6 +98,7 @@ const getPackage = async function (req, res) {
         // Map the array of packageDetail to include both packageName and packageId
         const packageData = packageDetail.map(package => ({
             packageName: package.packageName,
+            customId: parseInt(package.customId), // Convert customId to number
             packageId: package._id
         }));
 

@@ -42,8 +42,23 @@ const feesAdd = async function (req, res) {
       if (!isValid(packageId)) {
         return res.status(400).send({ status: false, message: "packageId is required" });
       }
+
+      const lastFees = await feesModel.findOne({}, {}, { sort: { 'customId': -1 } });
+      let lastId = 0;
+
+      // If lastUser exists, retrieve customId
+      if (lastFees) {
+          lastId = parseInt(lastFees.customId) || 0;
+      }
+
+      // Generate new customId
+      const newId = lastId + 1;
+
+      // Set customId in body
+      body.customId = newId.toString();
   
       let newfeesData = {
+          customId:newId,
           packageId,
           price,
           noOfWinner,
@@ -62,7 +77,7 @@ const feesAdd = async function (req, res) {
 const getFees = async function (req, res) {
   try {
     const searchKeyword = req.query.search;
-    const sortField = req.query.sortField || '_id';
+    const sortField = req.query.sortField || 'customId';
     const sortOrder = req.query.sortOrder === 'desc' ? -1 : 1;
     const page = parseInt(req.query.page) || 1;
     const pageSize = parseInt(req.query.pageSize) || 10;
@@ -91,6 +106,7 @@ const getFees = async function (req, res) {
       },
       {
         $project: {
+          customId:{ $toInt: '$feesData.customId' },
           _id: 1,
           packageName: 1,
           feeId: '$feesData._id',
@@ -104,6 +120,7 @@ const getFees = async function (req, res) {
           $or: [
             { packageName: { $regex: keywordRegex } },
             { price: isNumeric ? { $eq: parseInt(searchKeyword) } : { $regex: keywordRegex } },
+            { customId: isNumeric ? { $eq: parseInt(searchKeyword) } : { $regex: keywordRegex } },
             { noOfWinner: isNumeric ? { $eq: parseInt(searchKeyword) } : { $regex: keywordRegex } },
             { noOfTicket: isNumeric ? { $eq: parseInt(searchKeyword) } : { $regex: keywordRegex } },
           ],

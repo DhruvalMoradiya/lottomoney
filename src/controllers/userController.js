@@ -18,40 +18,53 @@ const isValidBody = function(x) {
 
 
 const createUser = async function (req, res) {
-    try {
-        let body= req.body
-        let {mobile, email, password,referral} = body
+  try {
+      let body = req.body;
+      let { mobile, email, password, referral } = body;
 
-        if(!isValidBody(body)) return res.status(400).send({status: false, message: "Body cannot be blank"})
-        
-        if (!isValid(mobile)) return res.status(400).send({ status: false, message: "Phone Number required" })
-        if (!/^(\+91)?0?[6-9]\d{9}$/.test(mobile)) return res.status(400).send({ status: false, message: "mobile Number invalid. should be 10 digit" })
-        //email valid and eamil regex
-        if (!isValid(email)) return res.status(400).send({ status: false, message: "email is required" })
-        if (!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i.test(email)) return res.status(400).send({ status: false, message: "valid email is required" })         
-        
-        //password vallid and password regex
-        if(!isValid(password)) return res.status(400).send({ status: false, message: "Password is required" })
-        if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,15}$/.test(password)) return res.status(400).send({status: false,message: "Please provide Your password must be 8-15 characters long and include at least one capital letter, one small letter, one number, and one special character.",})
+      if (!isValidBody(body)) return res.status(400).send({ status: false, message: "Body cannot be blank" });
 
-        let userDetails = await userModel.findOne({ $or: [ { email: email }, { mobile: mobile }] })
+      if (!isValid(mobile)) return res.status(400).send({ status: false, message: "Phone Number required" });
+      if (!/^(\+91)?0?[6-9]\d{9}$/.test(mobile)) return res.status(400).send({ status: false, message: "Mobile Number invalid. Should be 10 digits" });
+      
+      if (!isValid(email)) return res.status(400).send({ status: false, message: "Email is required" });
+      if (!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/i.test(email)) return res.status(400).send({ status: false, message: "Valid email is required" });
 
-        if (userDetails) {
+      if (!isValid(password)) return res.status(400).send({ status: false, message: "Password is required" });
+      if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#])[A-Za-z\d@$!%*?&#]{8,15}$/.test(password)) return res.status(400).send({ status: false, message: "Please provide a password that is 8-15 characters long and includes at least one capital letter, one small letter, one number, and one special character." });
+
+      let userDetails = await userModel.findOne({ $or: [{ email: email }, { mobile: mobile }] });
+
+      if (userDetails) {
           if (userDetails.email == email) {
-              return res.status(200).send({ status: false, message: `${email} email already exist` })
-            } else {
-                return res.status(200).send({ status: false, message: `${mobile} mobile already exist` })
-              }
-        }
+              return res.status(200).send({ status: false, message: `${email} email already exists` });
+          } else {
+              return res.status(200).send({ status: false, message: `${mobile} mobile already exists` });
+          }
+      }
 
-        const hashPassword = bcrypt.hashSync(password, 10);
-        body["password"] = hashPassword
+      const lastUser = await userModel.findOne({}, {}, { sort: { 'customId': -1 } });
+      let lastId = 0;
 
-        let usersData= await userModel.create(body)
-        return res.status(201).send({status:true,message:"User created successfully",usersData})
-    } catch (error) {
-        return res.status(500).send({ message: "Server side Errors. Please try again later", error: error.message })
-    }
+      // If lastUser exists, retrieve customId
+      if (lastUser) {
+          lastId = parseInt(lastUser.customId) || 0;
+      }
+
+      // Generate new customId
+      const newId = lastId + 1;
+
+      // Set customId in body
+      body.customId = newId.toString(); // Convert to string
+
+      const hashPassword = bcrypt.hashSync(password, 10);
+      body["password"] = hashPassword;
+
+      let usersData = await userModel.create(body);
+      return res.status(201).send({ status: true, message: "User created successfully", usersData });
+  } catch (error) {
+      return res.status(500).send({ message: "Server side error. Please try again later", error: error.message });
+  }
 }
 
 
@@ -287,6 +300,7 @@ const updateUserProfile = async function (req, res) {
                 { bonusCoin: { $regex: searchRegex } },
                 { status: { $regex: searchRegex } },
                 { bankStatus: { $regex: searchRegex } },
+                { customId: { $regex: searchRegex } },
             ];
         }
 
@@ -295,7 +309,7 @@ const updateUserProfile = async function (req, res) {
 
         const userData = await userModel
             .find(query)
-            .select({ userName: 1, email: 1, mobile: 1, gender: 1, dateOfBirth: 1, totalCoin: 1, wonCoin: 1, bonusCoin: 1, status: 1, bankStatus: 1, _id: 0 })
+            .select({ userName: 1, email: 1, mobile: 1, gender: 1, dateOfBirth: 1, totalCoin: 1, wonCoin: 1, bonusCoin: 1, status: 1, bankStatus: 1,customId:1, _id: 0 })
             .skip((page - 1) * pageSize)
             .limit(pageSize);
 
