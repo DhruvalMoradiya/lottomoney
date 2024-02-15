@@ -13,10 +13,16 @@ const isValidBody = function(x) {
 
 const createMeghalottoActivity= async function (req, res) {
     try {
+
+      let userId = req.params.userId;
       const { contestId,date,ticket,contestFee,wonPrize,status } = req.body;
 
     if (!ObjectId.isValid(contestId)) {
         return res.status(400).send({ status: false, message: "contestId is invalid" });
+      }
+
+    if (!ObjectId.isValid(userId)) {
+        return res.status(400).send({ status: false, message: "userId is invalid" });
       }
 
     if (!isValid(status)) {
@@ -39,7 +45,7 @@ const createMeghalottoActivity= async function (req, res) {
         return res.status(400).send({ status: false, message: "wonPrize is required" });
       }
 
-    let newMeghalottoActivity = {contestId,date,ticket,contestFee,wonPrize,status};
+    let newMeghalottoActivity = {userId,contestId,date,ticket,contestFee,wonPrize,status};
 
     let meghalottoActivityData = await meghalottoActivityModel.create(newMeghalottoActivity);
     return res.status(201).send({ status: true, message: "meghalottoActivityData created successfully", meghalottoActivityData });
@@ -50,12 +56,15 @@ const createMeghalottoActivity= async function (req, res) {
   }
 
 
-
-
   const getMeghalottoActivity = async function (req, res) {
     try {
+        let userId = req.params.userId;
+
+        if (!ObjectId.isValid(userId)) {
+          return res.status(400).send({ status: false, message: "userId is invalid" });
+        }
         const meghalottoActivityData = await meghalottoActivityModel
-            .find({ isDeleted: false })
+            .find({ userId:userId, isDeleted: false })
             .select({ date: 1, ticket: 1, contestFee: 1, wonPrize: 1, status: 1, contestId: 1 });
 
         return res.status(200).send({

@@ -120,8 +120,8 @@ router.post("/file",authenticationAdmin,addFile)
 
  // ?page=1&pageSize=20
 
- router.post("/prizepooladd",authenticationAdmin,createPrizePool)
- router.get("/prizepoolget",authenticationAdmin,getPrizePool)
+ router.post("/prizepooladd/:feeId",authenticationAdmin,createPrizePool)
+ router.get("/prizepoolget/:feeId",authenticationAdmin,getPrizePool)
  router.put("/prizepoolupdate/:prizePoolId",authenticationAdmin,updatePrizePool)
  router.delete("/prizepooldelete/:prizePoolId",authenticationAdmin,prizePoolDelete)
  router.delete("/prizepooldeleteall",authenticationAdmin,prizePoolDeleteAll)  
@@ -140,7 +140,7 @@ router.get("/myticket/:userId",authentication,getMyTicket)
 router.get("/winner/:userId",authentication,getUserByUserId)
 router.put("/winner/:contestId",authentication,updateWinnerForContestTickets)
 
-router.post("/meghalottoactivityadd",authenticationAdmin,createMeghalottoActivity)
-router.get("/meghalottoactivityget",authenticationAdmin,getMeghalottoActivity)
+router.post("/meghalottoactivityadd/:userId",authenticationAdmin,createMeghalottoActivity)
+router.get("/meghalottoactivityget/:userId",authenticationAdmin,getMeghalottoActivity)
 
 module.exports = router;

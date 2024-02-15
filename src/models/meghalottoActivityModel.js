@@ -5,6 +5,8 @@ const meghalottoActivitySchema = new mongoose.Schema({
 
     contestId:{ type: ObjectId, ref: "Contest",trim: true, },
 
+    userId:{ type: ObjectId, ref: "LuckyLottoUser",trim: true, },
+
     date: { type: String,trim: true,},
 
     ticket:{ type: String,trim: true,},

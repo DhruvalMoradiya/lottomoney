@@ -273,7 +273,7 @@ const updateUserProfile = async function (req, res) {
     try {
         let page = req.query.page || 1;
         let pageSize = req.query.pageSize || 10;
-        let sortFields = req.query.sortFields || ['userName']; // Default sort field is 'userName'
+        let sortFields = req.query.sortFields || ['customId']; // Default sort field is 'userName'
         let sortOrder = req.query.sortOrder || 'asc';
         const searchKeyword = req.query.search || '';
 
@@ -309,7 +309,7 @@ const updateUserProfile = async function (req, res) {
 
         const userData = await userModel
             .find(query)
-            .select({ userName: 1, email: 1, mobile: 1, gender: 1, dateOfBirth: 1, totalCoin: 1, wonCoin: 1, bonusCoin: 1, status: 1, bankStatus: 1,customId:1, _id: 0 })
+            .select({ userName: 1, email: 1, mobile: 1, gender: 1, dateOfBirth: 1, totalCoin: 1, wonCoin: 1, bonusCoin: 1, status: 1, bankStatus: 1,customId:1, _id: 1 })
             .skip((page - 1) * pageSize)
             .limit(pageSize);
 

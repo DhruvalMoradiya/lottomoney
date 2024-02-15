@@ -11,18 +11,38 @@ const isValidBody = function(x) {
     return Object.keys(x).length > 0;
 };
 
-const createPrizePool= async function (req, res) {
+const createPrizePool = async function (req, res) {
     try {
-      const { price,rank } = req.body;
-  
-    if (!isValid(price)) {
-      return res.status(400).send({ status: false, message: "price is required" });
+        let body = req.body;
+        let feeId = req.params.feeId; // Extract feeId from URL parameters
+        let { price, rank } = body;
+
+        if (!ObjectId.isValid(feeId)) {
+            return res.status(400).send({ status: false, message: "feeId is invalid" });
+        }
+        if (!isValid(price)) {
+            return res.status(400).send({ status: false, message: "price is required" });
+        }
+
+        if (!isValid(rank)) {
+            return res.status(400).send({ status: false, message: "rank is required" });
+        }
+
+    const lastPrizePool = await prizePoolModel.findOne({}, {}, { sort: { 'customId': -1 } });
+    let lastId = 0;
+
+    // If lastUser exists, retrieve customId
+    if (lastPrizePool) {
+        lastId = parseInt(lastPrizePool.customId) || 0;
     }
 
-    if (!isValid(rank)) {
-      return res.status(400).send({ status: false, message: "rank is required" });
-    }
-    let newPrizePool = {price,rank};
+    // Generate new customId
+    const newId = lastId + 1;
+
+    // Set customId in body
+    body.customId = newId.toString(); // Convert to string
+
+    let newPrizePool = {price,rank,feeId,customId:newId};
 
     let prizePoolData = await prizePoolModel.create(newPrizePool);
     return res.status(201).send({ status: true, message: "prizePoolData created successfully", prizePoolData });
@@ -40,6 +60,7 @@ const createPrizePool= async function (req, res) {
         let sortFields = req.query.sortFields || ['createdAt']; // Default sort field is 'createdAt'
         let sortOrder = req.query.sortOrder || 'asc';
         const searchKeyword = req.query.search || ''; // Default to an empty string if 'search' parameter is not provided
+        const feeId = req.params.feeId; // Extract feeId from URL parameters
 
         if (!Array.isArray(sortFields)) {
             sortFields = [sortFields];
@@ -47,8 +68,10 @@ const createPrizePool= async function (req, res) {
 
         const query = {
             isDeleted: false,
+            feeId: feeId, // Filter by feeId
             $or: [
                 { price: { "$regex": searchKeyword, "$options": "i" } },
+                { customId: { "$regex": searchKeyword, "$options": "i" } },
                 { rank: { "$regex": searchKeyword, "$options": "i" } }
             ]
         };
@@ -57,7 +80,7 @@ const createPrizePool= async function (req, res) {
 
         let prizePoolData = await prizePoolModel
             .find(query)
-            .select({ price: 1, rank: 1, _id: 1 })
+            .select({ customId: 1, feeId: 1, price: 1, rank: 1, _id: 1 })
             .skip((page - 1) * pageSize)
             .limit(pageSize);
 
