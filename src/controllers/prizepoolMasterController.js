@@ -176,8 +176,14 @@ const prizePoolDelete = async function (req, res) {
 
 const prizePoolDeleteAll = async function (req, res) {
     try {
+
+        const feeId = req.params.feeId;
         // Define the condition for deletion
-        let condition = { isDeleted: false };
+        if (!ObjectId.isValid(feeId)) {
+            return res.status(400).send({ status: false, message: "feeId is invalid" });
+        }
+        
+        let condition = { feeId:feeId, isDeleted: false };
 
         // Delete all records that meet the condition
         let deletedPrizePools = await prizePoolModel.deleteMany(condition);

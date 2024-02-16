@@ -124,7 +124,7 @@ router.post("/file",authenticationAdmin,addFile)
  router.get("/prizepoolget/:feeId",authenticationAdmin,getPrizePool)
  router.put("/prizepoolupdate/:prizePoolId",authenticationAdmin,updatePrizePool)
  router.delete("/prizepooldelete/:prizePoolId",authenticationAdmin,prizePoolDelete)
- router.delete("/prizepooldeleteall",authenticationAdmin,prizePoolDeleteAll)  
+ router.delete("/prizepooldeleteall/:feeId",authenticationAdmin,prizePoolDeleteAll)  
  
  
 // User//
